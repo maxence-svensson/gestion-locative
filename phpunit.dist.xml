@@ -40,7 +40,10 @@
     </source>
 
     <extensions>
-        <bootstrap class="Zenstruck\Foundry\PHPUnit\FoundryExtension" />
+        <!-- La base de test est reconstruite une fois au début de la suite (via les migrations) -->
+        <bootstrap class="Zenstruck\Foundry\PHPUnit\FoundryExtension">
+            <parameter name="enabled-auto-reset" value="true" />
+        </bootstrap>
         <!-- Chaque test tourne dans une transaction annulée à la fin : la base reste propre -->
         <bootstrap class="DAMA\DoctrineTestBundle\PHPUnit\PHPUnitExtension" />
     </extensions>

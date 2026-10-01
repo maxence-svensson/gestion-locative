@@ -10,6 +10,9 @@
     --color-primary: #1f5f5b;
     --color-primary-hover: #17504c;
     --color-primary-soft: #e4efed;
+    --color-danger: #a8322d;
+    --color-danger-soft: #fbeceb;
+    --color-focus: #2f7ef7;
 
     --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 
@@ -22,5 +25,6 @@
     --space-12: 3rem;
 
     --radius: 0.5rem;
+    --shadow: 0 1px 2px rgb(0 0 0 / 0.04), 0 4px 16px rgb(0 0 0 / 0.06);
     --container: 64rem;
 }

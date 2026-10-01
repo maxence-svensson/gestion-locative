@@ -46,9 +46,8 @@ jobs:
           bin/console cache:warmup --env=dev
           vendor/bin/phpstan analyse --memory-limit=1G --no-progress
 
+      # La base de test est créée par Foundry au lancement des tests
       - name: Tests
         run: |
           bin/console sass:build
-          bin/console doctrine:database:create --env=test --if-not-exists
-          bin/console doctrine:migrations:migrate --env=test --no-interaction --allow-no-migration
           vendor/bin/phpunit
