@@ -1,0 +1,12 @@
+{% extends 'layout/app.html.twig' %}
+
+{% block title %}Espace locataire · Gestion locative{% endblock %}
+
+{% block content %}
+    <h1>Bonjour {{ app.user.firstName }}</h1>
+
+    <section class="empty-state">
+        <h2>Aucune location pour l'instant</h2>
+        <p>Dès que votre propriétaire vous aura rattaché à votre logement, vous retrouverez ici vos échéances, vos quittances et vos documents.</p>
+    </section>
+{% endblock %}

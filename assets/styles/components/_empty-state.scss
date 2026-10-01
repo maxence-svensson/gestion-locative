@@ -1,0 +1,18 @@
+// Affiché quand une liste est vide : explique ce qui apparaîtra ici et comment commencer
+.empty-state {
+    padding: var(--space-12) var(--space-6);
+    text-align: center;
+    background: var(--color-surface);
+    border: 1px dashed var(--color-border);
+    border-radius: var(--radius);
+
+    h2 {
+        font-size: 1.125rem;
+    }
+
+    p {
+        max-width: 32rem;
+        margin: 0 auto;
+        color: var(--color-text-muted);
+    }
+}

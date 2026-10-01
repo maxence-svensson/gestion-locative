@@ -41,8 +41,8 @@ IrlIndex (trimestre, valeur, date de publication)
 - [x] PHPStan niveau 8, PHP-CS-Fixer, PHPUnit, CI GitHub Actions
 
 ### Version 1
-- [ ] Connexion, rôles propriétaire et locataire, accès contrôlés par des Voters
-- [ ] Biens, baux et locataires
+- [x] Connexion, rôles propriétaire et locataire, espaces séparés, comptes de démo
+- [ ] Biens, baux et locataires, avec des Voters : chaque propriétaire n'accède qu'à ses propres biens
 - [ ] Génération mensuelle des échéances, sans doublon même si la tâche tourne deux fois
 - [ ] Saisie des paiements, quittance ou reçu en PDF
 - [ ] Espace locataire : échéances, quittances, documents, dépôt de l'attestation d'assurance

@@ -3,7 +3,7 @@ PHP     = $(DC) exec php
 CONSOLE = $(PHP) bin/console
 
 .DEFAULT_GOAL := help
-.PHONY: help start stop sh sass-watch db-reset test phpstan cs cs-fix qa
+.PHONY: help start stop sh sass-watch db-reset fixtures test phpstan cs cs-fix qa
 
 help: ## Affiche cette aide
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-12s\033[0m %s\n", $$1, $$2}'
@@ -29,9 +29,10 @@ db-reset: ## Recrée la base de données de développement
 	$(CONSOLE) doctrine:database:create
 	$(CONSOLE) doctrine:migrations:migrate --no-interaction --allow-no-migration
 
-test: ## Lance les tests
-	$(CONSOLE) doctrine:database:create --env=test --if-not-exists
-	$(CONSOLE) doctrine:migrations:migrate --env=test --no-interaction --allow-no-migration
+fixtures: ## Recharge les données de démonstration (vide la base de développement)
+	$(CONSOLE) foundry:load-fixtures main --no-interaction
+
+test: ## Lance les tests (la base de test est reconstruite automatiquement)
 	$(PHP) vendor/bin/phpunit
 
 phpstan: ## Analyse statique (PHPStan niveau 8)

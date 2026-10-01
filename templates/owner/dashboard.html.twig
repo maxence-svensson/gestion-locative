@@ -1,0 +1,12 @@
+{% extends 'layout/app.html.twig' %}
+
+{% block title %}Espace propriétaire · Gestion locative{% endblock %}
+
+{% block content %}
+    <h1>Bonjour {{ app.user.firstName }}</h1>
+
+    <section class="empty-state">
+        <h2>Aucun bien pour l'instant</h2>
+        <p>Vos logements, vos baux et le suivi de vos loyers apparaîtront ici dès que vous aurez ajouté votre premier bien.</p>
+    </section>
+{% endblock %}

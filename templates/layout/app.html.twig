@@ -1,0 +1,28 @@
+{% extends 'base.html.twig' %}
+
+{# Mise en page commune aux espaces propriétaire et locataire #}
+{% block body %}
+    <header class="topbar">
+        <div class="container topbar__inner">
+            <a href="{{ path('app_dashboard') }}" class="topbar__brand">Gestion locative</a>
+
+            {% if is_granted('ROLE_OWNER') and is_granted('ROLE_TENANT') %}
+                <nav class="topbar__nav" aria-label="Changer d'espace">
+                    <a href="{{ path('owner_dashboard') }}"
+                       {% if app.current_route starts with 'owner_' %}aria-current="page"{% endif %}>Propriétaire</a>
+                    <a href="{{ path('tenant_dashboard') }}"
+                       {% if app.current_route starts with 'tenant_' %}aria-current="page"{% endif %}>Locataire</a>
+                </nav>
+            {% endif %}
+
+            <div class="topbar__user">
+                <span>{{ app.user.fullName }}</span>
+                <a href="{{ path('app_logout') }}" class="button button--ghost">Se déconnecter</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="container app-main">
+        {% block content %}{% endblock %}
+    </main>
+{% endblock %}
