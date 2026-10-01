@@ -1,0 +1,10 @@
+{% extends 'layout/app.html.twig' %}
+
+{% block title %}Modifier {{ property.name }} · Gestion locative{% endblock %}
+
+{% block content %}
+    <a href="{{ path('owner_property_show', {id: property.id}) }}" class="back-link">← {{ property.name }}</a>
+    <h1>Modifier le bien</h1>
+
+    {{ include('owner/property/_form.html.twig') }}
+{% endblock %}

@@ -21,4 +21,5 @@ Les tests utilisent les factories Foundry (`src/Factory/`). La base de test est 
 - Dates en `DateTimeImmutable`.
 - Règles métier dans des services dédiés, testés unitairement, sans dépendance au contrôleur.
 - Droits d'accès via des Voters, avec un test fonctionnel qui vérifie qu'un utilisateur n'accède pas aux données d'un autre.
+- Les formulaires travaillent sur un objet intermédiaire (`src/Form/Data/`), jamais directement sur l'entité.
 - Chaque fonctionnalité arrive avec ses tests et sa migration Doctrine.

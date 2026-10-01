@@ -31,6 +31,15 @@
         }
     }
 
+    &--danger {
+        color: #fff;
+        background: var(--color-danger);
+
+        &:hover {
+            background: var(--color-danger-hover);
+        }
+    }
+
     &--block {
         width: 100%;
     }

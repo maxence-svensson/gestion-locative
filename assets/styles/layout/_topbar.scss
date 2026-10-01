@@ -16,7 +16,8 @@
         text-decoration: none;
     }
 
-    &__nav {
+    &__nav,
+    &__switch {
         display: flex;
         gap: var(--space-1);
 

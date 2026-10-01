@@ -1,0 +1,23 @@
+{{ form_start(form, {attr: {class: 'form form--card', novalidate: 'novalidate'}}) }}
+    {{ form_row(form.name) }}
+
+    <div class="form__group">
+        {{ form_row(form.addressLine) }}
+        <div class="form__columns">
+            {{ form_row(form.postalCode) }}
+            {{ form_row(form.city) }}
+        </div>
+    </div>
+
+    {{ form_row(form.housingType) }}
+    {{ form_row(form.furnished) }}
+
+    <div class="form__columns">
+        {{ form_row(form.surface) }}
+        {{ form_row(form.energyClass) }}
+    </div>
+
+    <div class="form__actions">
+        <button type="submit" class="button button--primary">Enregistrer</button>
+    </div>
+{{ form_end(form) }}

@@ -1,0 +1,50 @@
+.property-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));
+    gap: var(--space-4);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.property-card {
+    padding: var(--space-6);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+
+    &__header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: var(--space-3);
+
+        h2 {
+            font-size: 1.125rem;
+            margin-bottom: var(--space-2);
+        }
+
+        a {
+            color: var(--color-text);
+            text-decoration: none;
+
+            &:hover {
+                color: var(--color-primary);
+            }
+        }
+    }
+
+    &__address,
+    &__meta {
+        margin-bottom: var(--space-1);
+        color: var(--color-text-muted);
+        font-size: 0.875rem;
+    }
+
+    &__warning {
+        margin: var(--space-3) 0 0;
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: var(--color-warning);
+    }
+}

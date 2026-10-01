@@ -5,8 +5,17 @@
 {% block content %}
     <h1>Bonjour {{ app.user.firstName }}</h1>
 
-    <section class="empty-state">
-        <h2>Aucun bien pour l'instant</h2>
-        <p>Vos logements, vos baux et le suivi de vos loyers apparaîtront ici dès que vous aurez ajouté votre premier bien.</p>
-    </section>
+    {% if property_count == 0 %}
+        <section class="empty-state">
+            <h2>Aucun bien pour l'instant</h2>
+            <p>Vos logements, vos baux et le suivi de vos loyers apparaîtront ici dès que vous aurez ajouté votre premier bien.</p>
+            <a href="{{ path('owner_property_new') }}" class="button button--primary">Ajouter un bien</a>
+        </section>
+    {% else %}
+        <section class="stat-card">
+            <p class="stat-card__value">{{ property_count }}</p>
+            <p class="stat-card__label">{{ property_count > 1 ? 'biens en gestion' : 'bien en gestion' }}</p>
+            <a href="{{ path('owner_property_index') }}">Voir mes biens</a>
+        </section>
+    {% endif %}
 {% endblock %}
