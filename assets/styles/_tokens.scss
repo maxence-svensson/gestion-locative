@@ -1,0 +1,26 @@
+// Variables de design : couleurs, espacements, typographie.
+// Exposées en propriétés CSS pour pouvoir être réutilisées partout (et plus tard, un thème sombre).
+
+:root {
+    --color-bg: #f7f7f5;
+    --color-surface: #ffffff;
+    --color-text: #1c1f23;
+    --color-text-muted: #5b6370;
+    --color-border: #e3e4e0;
+    --color-primary: #1f5f5b;
+    --color-primary-hover: #17504c;
+    --color-primary-soft: #e4efed;
+
+    --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+
+    --space-1: 0.25rem;
+    --space-2: 0.5rem;
+    --space-3: 0.75rem;
+    --space-4: 1rem;
+    --space-6: 1.5rem;
+    --space-8: 2rem;
+    --space-12: 3rem;
+
+    --radius: 0.5rem;
+    --container: 64rem;
+}

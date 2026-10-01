@@ -1,0 +1,54 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  qa:
+    runs-on: ubuntu-latest
+
+    services:
+      database:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_DB: app
+          POSTGRES_USER: app
+          POSTGRES_PASSWORD: app
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -d app -U app"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      DATABASE_URL: postgresql://app:app@127.0.0.1:5432/app?serverVersion=17&charset=utf8
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: intl, pdo_pgsql, zip, apcu
+          coverage: none
+
+      - uses: ramsey/composer-install@v3
+
+      - name: Style du code
+        run: vendor/bin/php-cs-fixer fix --dry-run --diff
+
+      - name: Analyse statique
+        run: |
+          bin/console cache:warmup --env=dev
+          vendor/bin/phpstan analyse --memory-limit=1G --no-progress
+
+      - name: Tests
+        run: |
+          bin/console sass:build
+          bin/console doctrine:database:create --env=test --if-not-exists
+          bin/console doctrine:migrations:migrate --env=test --no-interaction --allow-no-migration
+          vendor/bin/phpunit

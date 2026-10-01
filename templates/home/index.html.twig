@@ -1,0 +1,27 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <main class="home container">
+        <span class="badge">En construction</span>
+        <h1>Gérez vos locations sans tableur</h1>
+        <p class="home__lead">
+            Appels de loyer, quittances, révision annuelle et documents pour les propriétaires
+            qui louent un à dix logements. Chaque locataire dispose de son propre espace.
+        </p>
+
+        <ul class="home__features">
+            <li class="home__feature">
+                <h2>Quittances automatiques</h2>
+                <p>Générées dès que le loyer est payé en entier, un reçu sinon.</p>
+            </li>
+            <li class="home__feature">
+                <h2>Révision selon l'IRL</h2>
+                <p>Calculée à la date prévue au bail, bloquée pour les logements classés F ou G.</p>
+            </li>
+            <li class="home__feature">
+                <h2>Documents centralisés</h2>
+                <p>Bail, état des lieux, attestation d'assurance avec relance à expiration.</p>
+            </li>
+        </ul>
+    </main>
+{% endblock %}
