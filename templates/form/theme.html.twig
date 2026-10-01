@@ -1,0 +1,57 @@
+{# Thème des formulaires Symfony, aligné sur les classes de assets/styles/components/_form.scss #}
+{% use 'form_div_layout.html.twig' %}
+
+{%- block form_row -%}
+    {%- if expanded is defined and expanded -%}
+        {# Groupe de boutons radio ou de cases : un fieldset et sa légende pour les lecteurs d'écran #}
+        <fieldset class="form__field{% if not valid %} form__field--invalid{% endif %}">
+            <legend>{{ label ?? name|humanize }}</legend>
+            {{- form_widget(form) -}}
+            {{- form_help(form) -}}
+            {{- form_errors(form) -}}
+        </fieldset>
+    {%- else -%}
+        <div class="form__field{% if not valid %} form__field--invalid{% endif %}">
+            {{- form_label(form) -}}
+            {{- form_widget(form) -}}
+            {{- form_help(form) -}}
+            {{- form_errors(form) -}}
+        </div>
+    {%- endif -%}
+{%- endblock form_row -%}
+
+{%- block checkbox_row -%}
+    <div class="form__field">
+        <label class="form__checkbox">
+            {{- form_widget(form) }} {{ label -}}
+        </label>
+        {{- form_help(form) -}}
+        {{- form_errors(form) -}}
+    </div>
+{%- endblock checkbox_row -%}
+
+{%- block choice_widget_expanded -%}
+    <div {{ block('widget_container_attributes') }}>
+        {%- for child in form %}
+            <label class="form__option">
+                {{- form_widget(child) }} {{ child.vars.label -}}
+            </label>
+        {% endfor -%}
+    </div>
+{%- endblock choice_widget_expanded -%}
+
+{%- block form_help -%}
+    {%- if help is not empty -%}
+        <p id="{{ id }}_help" class="form__help">{{ help }}</p>
+    {%- endif -%}
+{%- endblock form_help -%}
+
+{%- block form_errors -%}
+    {%- if errors|length > 0 -%}
+        <ul class="form__errors">
+            {%- for error in errors -%}
+                <li>{{ error.message }}</li>
+            {%- endfor -%}
+        </ul>
+    {%- endif -%}
+{%- endblock form_errors -%}

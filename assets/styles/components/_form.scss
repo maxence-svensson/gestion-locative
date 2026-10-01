@@ -2,16 +2,46 @@
     display: grid;
     gap: var(--space-4);
 
+    // Formulaire principal d'une page, posé sur une carte
+    &--card {
+        max-width: 40rem;
+        padding: var(--space-6);
+        background: var(--color-surface);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius);
+    }
+
+    &__group {
+        display: grid;
+        gap: var(--space-4);
+    }
+
+    &__columns {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+        gap: var(--space-4);
+    }
+
     &__field {
         display: grid;
+        // Sans cela, dans une ligne à deux colonnes, le champ le plus court est étiré à la hauteur de l'autre
+        align-content: start;
         gap: var(--space-1);
+        min-width: 0;
+        margin: 0;
+        padding: 0;
+        border: 0;
 
-        label {
+        > label,
+        > legend {
+            padding: 0;
             font-weight: 600;
             font-size: 0.875rem;
         }
 
-        input {
+        input:not([type='checkbox'], [type='radio']),
+        select {
+            width: 100%;
             padding: var(--space-2) var(--space-3);
             border: 1px solid var(--color-border);
             border-radius: var(--radius);
@@ -22,12 +52,46 @@
                 border-color: var(--color-primary);
             }
         }
+
+        // Même sélecteur que la règle de base ci-dessus, pour avoir la même spécificité et la remplacer
+        &--invalid {
+            input:not([type='checkbox'], [type='radio']),
+            select {
+                border-color: var(--color-danger);
+            }
+        }
     }
 
-    &__checkbox {
-        display: flex;
+    &__help {
+        margin: 0;
+        font-size: 0.8125rem;
+        color: var(--color-text-muted);
+    }
+
+    &__errors {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        font-size: 0.8125rem;
+        font-weight: 600;
+        color: var(--color-danger);
+    }
+
+    &__checkbox,
+    &__option {
+        display: inline-flex;
         align-items: center;
         gap: var(--space-2);
         font-size: 0.875rem;
+    }
+
+    &__option + &__option {
+        margin-left: var(--space-6);
+    }
+
+    &__actions {
+        display: flex;
+        gap: var(--space-2);
+        padding-top: var(--space-2);
     }
 }

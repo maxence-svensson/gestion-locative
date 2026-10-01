@@ -1,0 +1,50 @@
+{% extends 'layout/app.html.twig' %}
+
+{% block title %}{{ property.name }} · Gestion locative{% endblock %}
+
+{% block content %}
+    <a href="{{ path('owner_property_index') }}" class="back-link">← Mes biens</a>
+
+    <div class="page-header">
+        <h1>{{ property.name }}</h1>
+        <div class="page-header__actions">
+            <a href="{{ path('owner_property_edit', {id: property.id}) }}" class="button button--ghost">Modifier</a>
+            <form method="post" action="{{ path('owner_property_delete', {id: property.id}) }}"
+                  data-turbo-confirm="Supprimer « {{ property.name }} » ? Cette action est définitive.">
+                <input type="hidden" name="_token" value="{{ csrf_token('delete-property') }}">
+                <button type="submit" class="button button--danger">Supprimer</button>
+            </form>
+        </div>
+    </div>
+
+    {% if property.energyClass.freezesRent %}
+        <div class="alert alert--warning" role="note">
+            Ce logement est classé {{ property.energyClass.value }} au DPE : son loyer ne peut plus augmenter,
+            ni à la révision annuelle, ni au changement de locataire, tant que des travaux ne l'ont pas fait changer de classe.
+        </div>
+    {% endif %}
+
+    <dl class="details">
+        <div>
+            <dt>Adresse</dt>
+            <dd>{{ property.fullAddress }}</dd>
+        </div>
+        <div>
+            <dt>Type</dt>
+            <dd>{{ property.housingType.label }} {{ property.furnished ? 'meublé' : 'vide' }}</dd>
+        </div>
+        <div>
+            <dt>Surface habitable</dt>
+            <dd>{{ property.surface|format_number(locale: 'fr') }} m²</dd>
+        </div>
+        <div>
+            <dt>Classe énergie</dt>
+            <dd>{{ include('owner/property/_energy_class.html.twig', {energy_class: property.energyClass}) }}</dd>
+        </div>
+    </dl>
+
+    <section class="empty-state">
+        <h2>Aucun bail pour ce logement</h2>
+        <p>Le bail en cours et les locataires de ce logement apparaîtront ici.</p>
+    </section>
+{% endblock %}

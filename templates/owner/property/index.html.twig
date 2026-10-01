@@ -1,0 +1,39 @@
+{% extends 'layout/app.html.twig' %}
+
+{% block title %}Mes biens · Gestion locative{% endblock %}
+
+{% block content %}
+    <div class="page-header">
+        <h1>Mes biens</h1>
+        {% if properties is not empty %}
+            <a href="{{ path('owner_property_new') }}" class="button button--primary">Ajouter un bien</a>
+        {% endif %}
+    </div>
+
+    {% if properties is empty %}
+        <section class="empty-state">
+            <h2>Aucun bien pour l'instant</h2>
+            <p>Ajoutez votre premier logement pour pouvoir ensuite y rattacher un bail et des locataires.</p>
+            <a href="{{ path('owner_property_new') }}" class="button button--primary">Ajouter un bien</a>
+        </section>
+    {% else %}
+        <ul class="property-list">
+            {% for property in properties %}
+                <li class="property-card">
+                    <div class="property-card__header">
+                        <h2><a href="{{ path('owner_property_show', {id: property.id}) }}">{{ property.name }}</a></h2>
+                        {{ include('owner/property/_energy_class.html.twig', {energy_class: property.energyClass}) }}
+                    </div>
+                    <p class="property-card__address">{{ property.fullAddress }}</p>
+                    <p class="property-card__meta">
+                        {{ property.housingType.label }} · {{ property.surface|format_number(locale: 'fr') }} m²
+                        · {{ property.furnished ? 'Meublé' : 'Vide' }}
+                    </p>
+                    {% if property.energyClass.freezesRent %}
+                        <p class="property-card__warning">Loyer gelé : logement classé {{ property.energyClass.value }}</p>
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+{% endblock %}

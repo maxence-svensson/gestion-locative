@@ -39,7 +39,7 @@ final class DashboardControllerTest extends WebTestCase
         self::assertResponseRedirects('/proprietaire');
 
         $client->followRedirect();
-        self::assertSelectorTextContains('.topbar__nav [aria-current="page"]', 'Propriétaire');
+        self::assertSelectorTextContains('.topbar__switch [aria-current="page"]', 'Propriétaire');
 
         $client->clickLink('Locataire');
         self::assertRouteSame('tenant_dashboard');

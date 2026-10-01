@@ -8,4 +8,14 @@
         color: var(--color-danger);
         background: var(--color-danger-soft);
     }
+
+    &--success {
+        color: var(--color-success);
+        background: var(--color-success-soft);
+    }
+
+    &--warning {
+        color: var(--color-warning);
+        background: var(--color-warning-soft);
+    }
 }

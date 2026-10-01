@@ -1,0 +1,10 @@
+{% extends 'layout/app.html.twig' %}
+
+{% block title %}Ajouter un bien · Gestion locative{% endblock %}
+
+{% block content %}
+    <a href="{{ path('owner_property_index') }}" class="back-link">← Mes biens</a>
+    <h1>Ajouter un bien</h1>
+
+    {{ include('owner/property/_form.html.twig') }}
+{% endblock %}

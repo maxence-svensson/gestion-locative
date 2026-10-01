@@ -1,0 +1,28 @@
+@use 'sass:list';
+
+// Étiquette DPE, aux couleurs de l'échelle officielle (vert pour A, rouge pour G)
+$dpe-colors: (
+    'a': (#009c6d, #fff),
+    'b': (#52b153, #fff),
+    'c': (#a5cc74, #1c1f23),
+    'd': (#f4e70f, #1c1f23),
+    'e': (#f0b40f, #1c1f23),
+    'f': (#eb8235, #1c1f23),
+    'g': (#d7221f, #fff),
+);
+
+.dpe {
+    display: inline-block;
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--radius);
+    font-size: 0.75rem;
+    font-weight: 700;
+    white-space: nowrap;
+
+    @each $class, $colors in $dpe-colors {
+        &--#{$class} {
+            background: list.nth($colors, 1);
+            color: list.nth($colors, 2);
+        }
+    }
+}

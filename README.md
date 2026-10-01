@@ -59,3 +59,11 @@ make start
 - **E-mail insensible à la casse** : il est enregistré en minuscules, et l'e-mail saisi à la connexion est normalisé de la même façon.
 - **Limitation des tentatives** : au-delà de 5 échecs, la connexion est bloquée 15 minutes. Un test le vérifie.
 - **Mot de passe facultatif en base** : un locataire pourra être invité par son propriétaire avant d'avoir choisi son mot de passe.
+
+### Biens
+
+- **Deux protections complémentaires** : un Voter (`PropertyVoter`) contrôle l'accès à un bien précis, et la requête de la liste filtre par propriétaire. Le Voter seul ne suffirait pas à empêcher une liste d'afficher les biens des autres.
+- **Des tests qui échouent si la protection disparaît** : pour chaque action (consulter, modifier, supprimer), un test vérifie qu'un autre propriétaire reçoit une erreur 403, même avec un jeton CSRF valide. J'ai vérifié qu'ils échouent bien quand on casse volontairement le Voter.
+- **Formulaire lié à un objet intermédiaire** (`PropertyData`) plutôt qu'à l'entité : le formulaire accepte des champs vides pendant la saisie, alors que l'entité `Property` est toujours complète et valide.
+- **Statut 422 sur un formulaire invalide** : c'est ce qu'attend Turbo pour réafficher le formulaire avec ses erreurs sans recharger la page.
+- **Règle métier du DPE** : un logement classé F ou G est signalé « loyer gelé » ; la même règle bloquera la révision annuelle du loyer.
