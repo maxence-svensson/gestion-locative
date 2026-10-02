@@ -1,0 +1,40 @@
+<section class="card">
+    <div class="card__header">
+        <h2>Bail en cours</h2>
+        <span class="badge">Depuis le {{ lease.startDate|long_date }}</span>
+    </div>
+
+    <dl class="details details--flat">
+        <div>
+            <dt>Loyer hors charges</dt>
+            <dd>{{ lease.rent|money }}</dd>
+        </div>
+        <div>
+            <dt>Provision sur charges</dt>
+            <dd>{{ lease.charges|money }}</dd>
+        </div>
+        <div>
+            <dt>Total mensuel</dt>
+            <dd><strong>{{ lease.monthlyTotal|money }}</strong></dd>
+        </div>
+        <div>
+            <dt>Payable le</dt>
+            <dd>{{ lease.paymentDay == 1 ? '1er' : lease.paymentDay }} de chaque mois</dd>
+        </div>
+        <div>
+            <dt>Dépôt de garantie</dt>
+            <dd>{{ lease.deposit|money }}</dd>
+        </div>
+        <div>
+            <dt>IRL de référence</dt>
+            <dd>{{ lease.irlReferenceQuarter == 1 ? '1er' : lease.irlReferenceQuarter ~ 'e' }} trimestre {{ lease.irlReferenceYear }}</dd>
+        </div>
+    </dl>
+
+    <h3 class="card__subtitle">{{ lease.tenants|length > 1 ? 'Locataires (colocation)' : 'Locataire' }}</h3>
+    <ul class="tenant-summary">
+        {% for tenant in lease.tenants %}
+            <li><strong>{{ tenant.fullName }}</strong> <span>{{ tenant.email }}</span></li>
+        {% endfor %}
+    </ul>
+</section>

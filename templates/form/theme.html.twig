@@ -40,6 +40,13 @@
     </div>
 {%- endblock choice_widget_expanded -%}
 
+{# Le symbole € est placé à côté du champ, et non en dessous #}
+{%- block money_widget -%}
+    <div class="form__affix">
+        {{- money_pattern|form_encode_currency(block('form_widget_simple')) -}}
+    </div>
+{%- endblock money_widget -%}
+
 {%- block form_help -%}
     {%- if help is not empty -%}
         <p id="{{ id }}_help" class="form__help">{{ help }}</p>

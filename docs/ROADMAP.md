@@ -43,7 +43,8 @@ IrlIndex (trimestre, valeur, date de publication)
 ### Version 1
 - [x] Connexion, rôles propriétaire et locataire, espaces séparés, comptes de démo
 - [x] Biens, avec un Voter : chaque propriétaire n'accède qu'à ses propres biens
-- [ ] Baux et locataires (loyer, charges, dépôt de garantie, trimestre IRL de référence)
+- [x] Baux et locataires (loyer, charges, dépôt de garantie, trimestre IRL de référence, colocation)
+- [ ] Fin de bail et changement de locataire (un logement F ou G ne peut pas être reloué plus cher)
 - [ ] Génération mensuelle des échéances, sans doublon même si la tâche tourne deux fois
 - [ ] Saisie des paiements, quittance ou reçu en PDF
 - [ ] Espace locataire : échéances, quittances, documents, dépôt de l'attestation d'assurance

@@ -6,6 +6,7 @@ namespace App\Story;
 
 use App\Enum\EnergyClass;
 use App\Enum\HousingType;
+use App\Factory\LeaseFactory;
 use App\Factory\PropertyFactory;
 use App\Factory\UserFactory;
 use Zenstruck\Foundry\Attribute\AsFixture;
@@ -36,7 +37,7 @@ final class AppStory extends Story
             'password' => self::DEMO_PASSWORD,
         ]);
 
-        PropertyFactory::new()->create([
+        $croixRousse = PropertyFactory::new()->create([
             'owner' => $owner,
             'name' => 'T2 Croix-Rousse',
             'addressLine' => '12 rue d\'Austerlitz',
@@ -48,7 +49,7 @@ final class AppStory extends Story
             'energyClass' => EnergyClass::C,
         ]);
 
-        // Classé F : montre le gel du loyer des « passoires thermiques »
+        // Classé F et vacant : montre le gel du loyer des « passoires thermiques »
         PropertyFactory::new()->create([
             'owner' => $owner,
             'name' => 'Studio Guillotière',
@@ -61,7 +62,7 @@ final class AppStory extends Story
             'energyClass' => EnergyClass::F,
         ]);
 
-        PropertyFactory::new()->create([
+        $villeurbanne = PropertyFactory::new()->create([
             'owner' => $owner,
             'name' => 'Maison Villeurbanne',
             'addressLine' => '3 impasse des Tilleuls',
@@ -71,6 +72,35 @@ final class AppStory extends Story
             'furnished' => false,
             'surface' => 92.0,
             'energyClass' => EnergyClass::D,
+        ]);
+
+        // Le locataire de démo loue le T2 (son espace locataire sera relié à ce bail)
+        LeaseFactory::new()->create([
+            'property' => $croixRousse,
+            'startDate' => new \DateTimeImmutable('2025-09-01'),
+            'rent' => 72000,
+            'charges' => 6000,
+            'deposit' => 72000,
+            'paymentDay' => 5,
+            'irlReferenceQuarter' => 2,
+            'irlReferenceYear' => 2025,
+            'tenants' => [['Karim', 'Benali', 'locataire@demo.test']],
+        ]);
+
+        // Une colocation
+        LeaseFactory::new()->create([
+            'property' => $villeurbanne,
+            'startDate' => new \DateTimeImmutable('2024-07-01'),
+            'rent' => 135000,
+            'charges' => 9000,
+            'deposit' => 135000,
+            'paymentDay' => 1,
+            'irlReferenceQuarter' => 1,
+            'irlReferenceYear' => 2024,
+            'tenants' => [
+                ['Léa', 'Moreau', 'lea.moreau@demo.test'],
+                ['Hugo', 'Lambert', 'hugo.lambert@demo.test'],
+            ],
         ]);
     }
 }

@@ -1,0 +1,25 @@
+// Statut d'un bien : loué ou vacant
+.status {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    margin-top: var(--space-3);
+    font-size: 0.8125rem;
+    font-weight: 600;
+
+    &::before {
+        content: '';
+        width: 0.5rem;
+        height: 0.5rem;
+        border-radius: 50%;
+        background: currentColor;
+    }
+
+    &--leased {
+        color: var(--color-success);
+    }
+
+    &--vacant {
+        color: var(--color-text-muted);
+    }
+}

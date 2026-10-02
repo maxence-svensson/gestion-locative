@@ -11,6 +11,40 @@
         border-radius: var(--radius);
     }
 
+    &--wide {
+        max-width: 48rem;
+    }
+
+    &__section-title {
+        margin: var(--space-4) 0 0;
+        padding-top: var(--space-4);
+        border-top: 1px solid var(--color-border);
+        font-size: 1rem;
+
+        &:first-of-type {
+            margin-top: 0;
+            padding-top: 0;
+            border-top: 0;
+        }
+    }
+
+    &__summary {
+        margin: 0;
+        font-size: 0.875rem;
+        color: var(--color-text-muted);
+
+        strong {
+            color: var(--color-text);
+        }
+    }
+
+    // Champ suivi d'une unité (« € »)
+    &__affix {
+        display: flex;
+        align-items: center;
+        gap: var(--space-2);
+    }
+
     &__group {
         display: grid;
         gap: var(--space-4);

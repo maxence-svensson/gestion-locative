@@ -29,6 +29,11 @@
                         {{ property.housingType.label }} · {{ property.surface|format_number(locale: 'fr') }} m²
                         · {{ property.furnished ? 'Meublé' : 'Vide' }}
                     </p>
+                    {% if property.id in leased_property_ids %}
+                        <span class="status status--leased">Loué</span>
+                    {% else %}
+                        <span class="status status--vacant">Vacant</span>
+                    {% endif %}
                     {% if property.energyClass.freezesRent %}
                         <p class="property-card__warning">Loyer gelé : logement classé {{ property.energyClass.value }}</p>
                     {% endif %}
