@@ -87,10 +87,27 @@ make start
 - **Suivi à partir du mois de saisie** pour un bail déjà en cours : le propriétaire n'a pas à marquer comme payés des mois antérieurs à son arrivée dans l'application.
 - **Le temps est injecté** (`ClockInterface`) : les tests figent la date du jour, et ne dépendent donc pas du jour où ils tournent.
 
+### Paiements, quittances et reçus
+
+- **Cycle de vie d'une échéance géré par le composant Workflow** (`config/packages/workflow.yaml`). Les gardes portent sur le montant encaissé : l'état suit toujours les paiements, et chaque changement d'état est journalisé.
+
+```mermaid
+graph LR
+    unpaid(["À payer"]) -->|"pay_partially"| partially_paid(("Payée en partie"))
+    partially_paid -->|"pay_partially"| partially_paid
+    unpaid -->|"pay_in_full"| paid(("Payée"))
+    partially_paid -->|"pay_in_full"| paid
+```
+
+- **Quittance ou reçu en PDF** (Dompdf), selon l'article 21 de la loi de 1989 : la quittance n'est délivrée que pour un loyer payé en entier et distingue le loyer des charges ; un paiement partiel donne un reçu qui précise qu'il ne vaut pas quittance. Les tests lisent le texte du PDF généré pour le vérifier.
+- **Impossible d'encaisser plus que le montant dû**, même avec deux paiements simultanés (deux onglets, double clic) : l'échéance est verrouillée (`SELECT … FOR UPDATE`) et relue avant chaque paiement.
+- **Tableau de bord** : montant appelé et encaissé dans le mois, échéances en retard (une échéance payée en partie après sa date reste en retard).
+
 ## Problèmes rencontrés
 
 - **« 1 234,56 » refusé dans un champ montant.** Le champ `MoneyType` de Symfony rejette par défaut un montant écrit avec un espace entre les milliers, la façon habituelle d'écrire en français. Il faut activer l'option `grouping`. J'en ai fait un champ réutilisable (`EuroAmountType`), avec un test pour chaque façon d'écrire un montant (espace, espace insécable, virgule, point).
 - **Un test de performance qui se trompait.** Le test qui compte les requêtes SQL de la liste des biens trouvait 10 requêtes au lieu de 3 : il comptait aussi les insertions faites par le test juste avant, le noyau n'étant redémarré qu'à la requête suivante. Le test fait maintenant une requête « à blanc » avant de mesurer.
 - **Ajouter une colonne obligatoire à une table déjà remplie.** La migration générée (`ADD ... NOT NULL`) aurait échoué sur une base contenant des baux. Elle ajoute maintenant la colonne vide, la remplit, puis la rend obligatoire.
-- **Des tests qui passaient pour une mauvaise raison.** Pour chaque garde-fou (Voter, nombre de requêtes, saisie des montants), j'ai introduit volontairement le défaut qu'il surveille, pour vérifier qu'il échoue bien.
+- **`wrapInTransaction()` ferme l'EntityManager au premier refus.** Avec cette méthode de Doctrine, un simple refus métier (« le paiement dépasse le reste à payer ») fermait l'EntityManager, et la page ne pouvait plus réafficher le formulaire avec son message. La transaction est maintenant gérée à la main ; un test enregistre un paiement juste après un refus pour le vérifier.
+- **Des tests qui passaient pour une mauvaise raison.** Pour chaque garde-fou (Voters, nombre de requêtes, saisie des montants, doublons d'échéances, verrou des paiements), j'ai introduit volontairement le défaut qu'il surveille, pour vérifier qu'il échoue bien.
 - **Le test du blocage après 5 échecs de connexion échouait** : en test, le cache en mémoire est vidé entre deux requêtes, donc le compteur repartait de zéro. Solution : cache sur disque, remis à zéro au début de chaque test.

@@ -33,6 +33,14 @@
         font-variant-numeric: tabular-nums;
     }
 
+    &__actions {
+        text-align: right;
+
+        a + a {
+            margin-left: var(--space-3);
+        }
+    }
+
     &__note {
         display: block;
         font-size: 0.75rem;

@@ -13,7 +13,7 @@
                     <a href="{{ path('owner_dashboard') }}"
                        {% if app.current_route == 'owner_dashboard' %}aria-current="page"{% endif %}>Tableau de bord</a>
                     <a href="{{ path('owner_property_index') }}"
-                       {% if app.current_route starts with 'owner_property_' or app.current_route starts with 'owner_lease_' %}aria-current="page"{% endif %}>Mes biens</a>
+                       {% if app.current_route starts with 'owner_property_' or app.current_route starts with 'owner_lease_' or app.current_route starts with 'owner_rent_due_' %}aria-current="page"{% endif %}>Mes biens</a>
                 </nav>
             {% endif %}
 

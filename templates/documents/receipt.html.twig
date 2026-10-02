@@ -1,0 +1,115 @@
+{# Quittance ou reçu, converti en PDF par Dompdf (CSS 2.1 : mise en page en tableaux, sans flexbox ni grille) #}
+{% set tenants = lease.tenants %}
+{% set tenant_names = tenants|map(tenant => tenant.fullName)|join(', ', ' et ') %}
+{% set is_quittance = type.value == 'quittance' %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ type.label }} · {{ due.period|month_year }}</title>
+    <style>
+        @page { margin: 2cm; }
+        body { font-family: 'DejaVu Sans', sans-serif; font-size: 10pt; color: #1c1f23; line-height: 1.45; }
+        h1 { margin: 0; font-size: 20pt; color: #1f5f5b; }
+        .period { margin: 2pt 0 24pt; font-size: 12pt; color: #5b6370; }
+        .parties { width: 100%; margin-bottom: 18pt; border-collapse: collapse; }
+        .parties td { width: 50%; padding: 0 12pt 0 0; vertical-align: top; }
+        .label { margin: 0 0 2pt; font-size: 8pt; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5pt; color: #5b6370; }
+        .block { margin: 0 0 18pt; }
+        .amounts { width: 100%; margin-bottom: 18pt; border-collapse: collapse; }
+        .amounts th, .amounts td { padding: 6pt 8pt; border-bottom: 1px solid #e3e4e0; text-align: left; }
+        .amounts th { font-size: 8pt; text-transform: uppercase; color: #5b6370; }
+        .amounts .amount { text-align: right; white-space: nowrap; }
+        .amounts .total td { font-weight: bold; border-bottom: 0; border-top: 1.5px solid #1c1f23; }
+        .statement { margin: 0 0 18pt; padding: 10pt 12pt; background: #f7f7f5; border-left: 3px solid #1f5f5b; }
+        .statement--partial { border-left-color: #8a4b08; }
+        .footer { margin-top: 30pt; font-size: 8pt; color: #5b6370; }
+    </style>
+</head>
+<body>
+    <h1>{{ type.label }}</h1>
+    <p class="period">{{ due.period|month_year|capitalize }}</p>
+
+    <table class="parties">
+        <tr>
+            <td>
+                <p class="label">Bailleur</p>
+                {{ owner.fullName }}
+            </td>
+            <td>
+                <p class="label">{{ tenants|length > 1 ? 'Locataires' : 'Locataire' }}</p>
+                {% for tenant in tenants %}{{ tenant.fullName }}{% if not loop.last %}<br>{% endif %}{% endfor %}
+            </td>
+        </tr>
+    </table>
+
+    <div class="block">
+        <p class="label">Logement</p>
+        {{ property.addressLine }}, {{ property.postalCode }} {{ property.city }}
+    </div>
+
+    <div class="block">
+        <p class="label">Période</p>
+        Du {{ due.coveredFrom|long_date }} au {{ due.coveredUntil|long_date }}{% if due.prorated %} (premier mois, au prorata des jours occupés){% endif %}
+    </div>
+
+    <table class="amounts">
+        <tr>
+            <th>Détail</th>
+            <th class="amount">Montant</th>
+        </tr>
+        <tr>
+            <td>Loyer hors charges</td>
+            <td class="amount">{{ due.rent|money }}</td>
+        </tr>
+        <tr>
+            <td>Provision sur charges</td>
+            <td class="amount">{{ due.charges|money }}</td>
+        </tr>
+        <tr class="total">
+            <td>Total dû</td>
+            <td class="amount">{{ due.total|money }}</td>
+        </tr>
+    </table>
+
+    <p class="label">Paiements reçus</p>
+    <table class="amounts">
+        {% for payment in due.payments %}
+            <tr>
+                <td>{{ payment.paidOn|long_date|capitalize }} · {{ payment.method.label }}</td>
+                <td class="amount">{{ payment.amount|money }}</td>
+            </tr>
+        {% endfor %}
+        <tr class="total">
+            <td>Total reçu</td>
+            <td class="amount">{{ due.paidAmount|money }}</td>
+        </tr>
+        {% if not is_quittance %}
+            <tr>
+                <td>Reste à payer</td>
+                <td class="amount">{{ due.remainingAmount|money }}</td>
+            </tr>
+        {% endif %}
+    </table>
+
+    {% if is_quittance %}
+        <p class="statement">
+            Je soussigné(e) {{ owner.fullName }}, bailleur du logement désigné ci-dessus, déclare avoir reçu de
+            {{ tenant_names }} la somme de {{ due.total|money }}, dont {{ due.rent|money }} de loyer et
+            {{ due.charges|money }} de provision sur charges, pour la période du {{ due.coveredFrom|long_date }}
+            au {{ due.coveredUntil|long_date }}, et {{ tenants|length > 1 ? 'leur' : 'lui' }} en donne quittance,
+            sous réserve de tous mes droits.
+        </p>
+    {% else %}
+        <p class="statement statement--partial">
+            Ce reçu atteste d'un paiement partiel de {{ due.paidAmount|money }} sur {{ due.total|money }}.
+            Il ne vaut pas quittance : la quittance sera délivrée une fois le loyer et les charges payés en entier.
+        </p>
+    {% endif %}
+
+    <p class="footer">
+        Document établi le {{ (due.payments|last).paidOn|long_date }}, en application de l'article 21
+        de la loi n° 89-462 du 6 juillet 1989.
+    </p>
+</body>
+</html>
