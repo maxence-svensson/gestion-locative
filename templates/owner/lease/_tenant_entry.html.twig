@@ -1,0 +1,14 @@
+{# Une ligne de la liste des locataires. Sert aussi de modèle aux lignes ajoutées par form-collection #}
+<fieldset class="tenant-entry" data-form-collection-target="entry">
+    <legend class="tenant-entry__title">Locataire</legend>
+
+    <div class="form__columns">
+        {{ form_row(tenant.firstName) }}
+        {{ form_row(tenant.lastName) }}
+    </div>
+    {{ form_row(tenant.email) }}
+
+    <button type="button" class="button button--link" data-action="form-collection#remove">
+        Retirer ce locataire
+    </button>
+</fieldset>

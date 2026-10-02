@@ -1,0 +1,62 @@
+{% extends 'layout/app.html.twig' %}
+
+{% block title %}Nouveau bail · {{ property.name }} · Gestion locative{% endblock %}
+
+{% block content %}
+    <a href="{{ path('owner_property_show', {id: property.id}) }}" class="back-link">← {{ property.name }}</a>
+    <h1>Nouveau bail</h1>
+    <p class="page-intro">{{ property.name }} · location {{ property.furnished ? 'meublée' : 'vide' }}</p>
+
+    {{ form_start(form, {attr: {
+        class: 'form form--card form--wide',
+        novalidate: 'novalidate',
+        'data-controller': 'lease-amounts',
+        'data-lease-amounts-furnished-value': property.furnished ? 'true' : 'false',
+    }}) }}
+        <h2 class="form__section-title">Le bail</h2>
+        <div class="form__columns">
+            {{ form_row(form.startDate) }}
+            {{ form_row(form.paymentDay) }}
+        </div>
+        <div class="form__columns">
+            {{ form_row(form.irlReferenceQuarter) }}
+            {{ form_row(form.irlReferenceYear) }}
+        </div>
+
+        <h2 class="form__section-title">Loyer et dépôt de garantie</h2>
+        <div class="form__columns">
+            {{ form_row(form.rent, {attr: {'data-lease-amounts-target': 'rent', 'data-action': 'input->lease-amounts#update'}}) }}
+            {{ form_row(form.charges, {attr: {'data-lease-amounts-target': 'charges', 'data-action': 'input->lease-amounts#update'}}) }}
+        </div>
+        <p class="form__summary">Total appelé chaque mois : <strong data-lease-amounts-target="total">—</strong></p>
+
+        {{ form_row(form.deposit) }}
+        <p class="form__summary">Dépôt maximum autorisé : <strong data-lease-amounts-target="depositMax">—</strong></p>
+
+        <h2 class="form__section-title">Locataires</h2>
+        {# Index de la prochaine ligne : un de plus que la plus grande clé existante (il peut y avoir des trous) #}
+        {% set next_index = form.tenants.children|keys|reduce((carry, key) => max(carry, key + 1), 0) %}
+        <div data-controller="form-collection"
+             data-form-collection-prototype-value="{{ include('owner/lease/_tenant_entry.html.twig', {tenant: form.tenants.vars.prototype})|e('html_attr') }}"
+             data-form-collection-index-value="{{ next_index }}"
+             data-form-collection-max-value="{{ constant('App\\Form\\Data\\LeaseData::MAX_TENANTS') }}">
+            {{ form_errors(form.tenants) }}
+
+            <div class="tenant-list" data-form-collection-target="list">
+                {% for tenant in form.tenants %}
+                    {{ include('owner/lease/_tenant_entry.html.twig', {tenant: tenant}) }}
+                {% endfor %}
+            </div>
+
+            <button type="button" class="button button--ghost"
+                    data-action="form-collection#add" data-form-collection-target="addButton">
+                + Ajouter un colocataire
+            </button>
+        </div>
+        {% do form.tenants.setRendered %}
+
+        <div class="form__actions">
+            <button type="submit" class="button button--primary">Créer le bail</button>
+        </div>
+    {{ form_end(form) }}
+{% endblock %}

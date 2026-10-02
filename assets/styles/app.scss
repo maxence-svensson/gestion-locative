@@ -4,13 +4,16 @@
 @use 'components/alert';
 @use 'components/badge';
 @use 'components/button';
+@use 'components/card';
 @use 'components/dpe';
 @use 'components/empty-state';
 @use 'components/form';
+@use 'components/status';
 
 @use 'layout/page';
 @use 'layout/topbar';
 
 @use 'pages/auth';
 @use 'pages/home';
+@use 'pages/lease';
 @use 'pages/property';

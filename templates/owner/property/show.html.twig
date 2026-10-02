@@ -9,11 +9,14 @@
         <h1>{{ property.name }}</h1>
         <div class="page-header__actions">
             <a href="{{ path('owner_property_edit', {id: property.id}) }}" class="button button--ghost">Modifier</a>
-            <form method="post" action="{{ path('owner_property_delete', {id: property.id}) }}"
-                  data-turbo-confirm="Supprimer « {{ property.name }} » ? Cette action est définitive.">
-                <input type="hidden" name="_token" value="{{ csrf_token('delete-property') }}">
-                <button type="submit" class="button button--danger">Supprimer</button>
-            </form>
+            {# Un bien loué ne peut pas être supprimé : le bouton n'est proposé que pour un bien vacant #}
+            {% if not lease %}
+                <form method="post" action="{{ path('owner_property_delete', {id: property.id}) }}"
+                      data-turbo-confirm="Supprimer « {{ property.name }} » ? Cette action est définitive.">
+                    <input type="hidden" name="_token" value="{{ csrf_token('delete-property') }}">
+                    <button type="submit" class="button button--danger">Supprimer</button>
+                </form>
+            {% endif %}
         </div>
     </div>
 
@@ -43,8 +46,13 @@
         </div>
     </dl>
 
-    <section class="empty-state">
-        <h2>Aucun bail pour ce logement</h2>
-        <p>Le bail en cours et les locataires de ce logement apparaîtront ici.</p>
-    </section>
+    {% if lease %}
+        {{ include('owner/lease/_summary.html.twig') }}
+    {% else %}
+        <section class="empty-state">
+            <h2>Ce bien est vacant</h2>
+            <p>Créez le bail pour suivre les loyers de ce logement et donner à vos locataires l'accès à leur espace.</p>
+            <a href="{{ path('owner_lease_new', {id: property.id}) }}" class="button button--primary">Créer le bail</a>
+        </section>
+    {% endif %}
 {% endblock %}

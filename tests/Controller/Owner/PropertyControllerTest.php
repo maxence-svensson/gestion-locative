@@ -7,12 +7,15 @@ namespace App\Tests\Controller\Owner;
 use App\Entity\Property;
 use App\Entity\User;
 use App\Enum\EnergyClass;
+use App\Factory\LeaseFactory;
 use App\Factory\PropertyFactory;
 use App\Factory\UserFactory;
 use App\Repository\PropertyRepository;
+use Doctrine\Bundle\DoctrineBundle\DataCollector\DoctrineDataCollector;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\HttpKernel\Profiler\Profile;
 
 final class PropertyControllerTest extends WebTestCase
 {
@@ -36,6 +39,38 @@ final class PropertyControllerTest extends WebTestCase
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('.property-list', 'Mon T2');
         self::assertSelectorTextNotContains('.property-list', 'Le bien d\'un autre propriétaire');
+    }
+
+    public function testListShowsWhetherEachPropertyIsLeased(): void
+    {
+        $leased = PropertyFactory::new()->create(['owner' => $this->owner, 'name' => 'Bien loué']);
+        LeaseFactory::new()->create(['property' => $leased]);
+        PropertyFactory::new()->create(['owner' => $this->owner, 'name' => 'Bien vacant']);
+
+        $crawler = $this->client->request('GET', '/proprietaire/biens');
+
+        $statusOf = static fn (string $name): string => $crawler
+            ->filter('.property-card')
+            ->reduce(static fn ($card): bool => str_contains($card->text(), $name))
+            ->filter('.status')
+            ->text();
+        self::assertSame('Loué', $statusOf('Bien loué'));
+        self::assertSame('Vacant', $statusOf('Bien vacant'));
+    }
+
+    /**
+     * Garde-fou de performance : afficher 10 biens ne doit pas coûter plus de requêtes SQL qu'en afficher 1
+     * (sinon, une requête est faite pour chaque bien, le problème dit « N+1 »).
+     */
+    public function testListQueryCountDoesNotGrowWithTheNumberOfProperties(): void
+    {
+        LeaseFactory::new()->create(['property' => PropertyFactory::new(['owner' => $this->owner])]);
+        $queriesForOneProperty = $this->countQueriesOnPropertyList();
+
+        LeaseFactory::new()->many(9)->create(['property' => PropertyFactory::new(['owner' => $this->owner])]);
+        $queriesForTenProperties = $this->countQueriesOnPropertyList();
+
+        self::assertSame($queriesForOneProperty, $queriesForTenProperties);
     }
 
     public function testEmptyListInvitesToAddAProperty(): void
@@ -145,6 +180,23 @@ final class PropertyControllerTest extends WebTestCase
 
         self::assertResponseStatusCodeSame(403);
         self::assertNotNull($this->propertyRepository()->findOneBy(['name' => 'Pas à moi']));
+    }
+
+    private function countQueriesOnPropertyList(): int
+    {
+        // Requête « à blanc » : sans elle, la mesure inclurait les insertions faites par le test juste avant,
+        // car le noyau n'est redémarré qu'au début de la requête suivante.
+        $this->client->request('GET', '/proprietaire/biens');
+
+        $this->client->enableProfiler();
+        $this->client->request('GET', '/proprietaire/biens');
+
+        $profile = $this->client->getProfile();
+        self::assertInstanceOf(Profile::class, $profile);
+        $collector = $profile->getCollector('db');
+        self::assertInstanceOf(DoctrineDataCollector::class, $collector);
+
+        return $collector->getQueryCount();
     }
 
     private function validDeleteToken(): string

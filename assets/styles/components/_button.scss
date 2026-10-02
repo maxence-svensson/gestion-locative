@@ -40,6 +40,21 @@
         }
     }
 
+    // Action secondaire présentée comme un lien
+    &--link {
+        padding: 0;
+        border: 0;
+        font-weight: 600;
+        font-size: 0.875rem;
+        color: var(--color-danger);
+        background: none;
+        justify-self: start;
+
+        &:hover {
+            text-decoration: underline;
+        }
+    }
+
     &--block {
         width: 100%;
     }

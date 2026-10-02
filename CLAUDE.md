@@ -17,7 +17,8 @@ Les tests utilisent les factories Foundry (`src/Factory/`). La base de test est 
 
 - Code et noms en anglais, textes de l'interface en français.
 - `declare(strict_types=1)` partout, classes `final` par défaut, entités comprises (lazy objects natifs de PHP 8.4).
-- Montants en centimes (`int`), jamais en `float`.
+- Montants en centimes (`int`), jamais en `float`. Saisie avec `EuroAmountType`, affichage avec le filtre Twig `money`.
+- Dates affichées avec le filtre Twig `long_date` (« 1er juillet 2024 »).
 - Dates en `DateTimeImmutable`.
 - Règles métier dans des services dédiés, testés unitairement, sans dépendance au contrôleur.
 - Droits d'accès via des Voters, avec un test fonctionnel qui vérifie qu'un utilisateur n'accède pas aux données d'un autre.

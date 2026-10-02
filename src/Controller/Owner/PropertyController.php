@@ -8,6 +8,7 @@ use App\Entity\Property;
 use App\Entity\User;
 use App\Form\Data\PropertyData;
 use App\Form\PropertyFormType;
+use App\Repository\LeaseRepository;
 use App\Repository\PropertyRepository;
 use App\Security\Voter\PropertyVoter;
 use Doctrine\ORM\EntityManagerInterface;
@@ -25,6 +26,7 @@ final class PropertyController extends AbstractController
 {
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
+        private readonly LeaseRepository $leases,
     ) {
     }
 
@@ -33,6 +35,7 @@ final class PropertyController extends AbstractController
     {
         return $this->render('owner/property/index.html.twig', [
             'properties' => $properties->findByOwner($user),
+            'leased_property_ids' => $this->leases->findLeasedPropertyIds($user),
         ]);
     }
 
@@ -61,7 +64,10 @@ final class PropertyController extends AbstractController
     #[IsGranted(PropertyVoter::VIEW, 'property')]
     public function show(Property $property): Response
     {
-        return $this->render('owner/property/show.html.twig', ['property' => $property]);
+        return $this->render('owner/property/show.html.twig', [
+            'property' => $property,
+            'lease' => $this->leases->findOneByProperty($property),
+        ]);
     }
 
     #[Route('/{id}/modifier', name: 'edit', requirements: ['id' => Requirement::DIGITS], methods: ['GET', 'POST'])]
@@ -92,6 +98,13 @@ final class PropertyController extends AbstractController
     #[IsCsrfTokenValid('delete-property', tokenKey: '_token')]
     public function delete(Property $property): Response
     {
+        // Un bien loué reste lié à son bail (et bientôt à ses loyers et quittances) : on ne le supprime pas
+        if (null !== $this->leases->findOneByProperty($property)) {
+            $this->addFlash('warning', 'Ce bien est loué : il ne peut pas être supprimé.');
+
+            return $this->redirectToRoute('owner_property_show', ['id' => $property->getId()], Response::HTTP_SEE_OTHER);
+        }
+
         $this->entityManager->remove($property);
         $this->entityManager->flush();
 

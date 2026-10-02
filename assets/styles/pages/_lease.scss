@@ -1,0 +1,41 @@
+// Les locataires sont numérotés par un compteur CSS : la numérotation reste juste quand on en retire un
+.tenant-list {
+    display: grid;
+    gap: var(--space-4);
+    margin-bottom: var(--space-4);
+    counter-reset: tenant;
+}
+
+.tenant-entry {
+    display: grid;
+    gap: var(--space-4);
+    margin: 0;
+    padding: var(--space-4);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    counter-increment: tenant;
+
+    &__title {
+        padding: 0 var(--space-1);
+        font-weight: 600;
+        font-size: 0.875rem;
+
+        &::after {
+            content: ' ' counter(tenant);
+        }
+    }
+}
+
+.tenant-summary {
+    display: grid;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+
+    span {
+        margin-left: var(--space-2);
+        color: var(--color-text-muted);
+        font-size: 0.875rem;
+    }
+}
