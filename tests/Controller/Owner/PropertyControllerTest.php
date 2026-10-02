@@ -10,15 +10,19 @@ use App\Enum\EnergyClass;
 use App\Factory\LeaseFactory;
 use App\Factory\PropertyFactory;
 use App\Factory\UserFactory;
+use App\Lease\RentDueGenerator;
 use App\Repository\PropertyRepository;
 use Doctrine\Bundle\DoctrineBundle\DataCollector\DoctrineDataCollector;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\Clock\Test\ClockSensitiveTrait;
 use Symfony\Component\HttpKernel\Profiler\Profile;
 
 final class PropertyControllerTest extends WebTestCase
 {
+    use ClockSensitiveTrait;
+
     private KernelBrowser $client;
     private User $owner;
 
@@ -147,6 +151,29 @@ final class PropertyControllerTest extends WebTestCase
 
         self::assertResponseRedirects('/proprietaire/biens');
         self::assertNull($this->propertyRepository()->findOneBy(['name' => 'À supprimer']));
+    }
+
+    public function testPropertyPageListsTheDuesWithTheirStatus(): void
+    {
+        self::mockTime('2026-10-04 10:00');
+        $property = PropertyFactory::new()->create(['owner' => $this->owner]);
+        $lease = LeaseFactory::new()->create([
+            'property' => $property,
+            'startDate' => new \DateTimeImmutable('2025-09-01'),
+            'rentTrackedFrom' => new \DateTimeImmutable('2026-09-01'),
+            'paymentDay' => 5,
+        ]);
+        self::getContainer()->get(RentDueGenerator::class)->generateFor($lease, new \DateTimeImmutable('2026-10-04'));
+
+        $crawler = $this->client->request('GET', \sprintf('/proprietaire/biens/%d', $property->getId()));
+
+        $rows = $crawler->filter('.table tbody tr');
+        self::assertCount(2, $rows);
+        // Le mois le plus récent en premier ; octobre n'est dû que le 5
+        self::assertStringContainsString('Octobre 2026', $rows->eq(0)->text());
+        self::assertStringContainsString('À payer', $rows->eq(0)->text());
+        self::assertStringContainsString('Septembre 2026', $rows->eq(1)->text());
+        self::assertStringContainsString('En retard', $rows->eq(1)->text());
     }
 
     public function testFrozenRentIsHighlightedForEnergySieves(): void

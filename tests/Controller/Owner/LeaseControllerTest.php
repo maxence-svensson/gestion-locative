@@ -12,17 +12,22 @@ use App\Factory\PropertyFactory;
 use App\Factory\UserFactory;
 use App\Repository\LeaseRepository;
 use App\Repository\PropertyRepository;
+use App\Repository\RentDueRepository;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\Clock\Test\ClockSensitiveTrait;
 
 final class LeaseControllerTest extends WebTestCase
 {
+    use ClockSensitiveTrait;
+
     private KernelBrowser $client;
     private User $owner;
 
     protected function setUp(): void
     {
+        self::mockTime('2026-10-15 10:00');
         $this->client = static::createClient();
         $this->owner = UserFactory::new()->asOwner()->create();
         $this->client->loginUser($this->owner);
@@ -51,6 +56,37 @@ final class LeaseControllerTest extends WebTestCase
         self::assertSame(100000, $lease->getDeposit());
         self::assertSame(129456, $lease->getMonthlyTotal());
         self::assertSame('2025-09-01', $lease->getStartDate()->format('Y-m-d'));
+    }
+
+    public function testALeaseAlreadyRunningIsTrackedFromTheCurrentMonth(): void
+    {
+        $property = $this->myProperty();
+
+        // Bail signé en septembre 2025, saisi en octobre 2026 : pas 14 mois d'échéances passées à régulariser
+        $this->client->request('GET', $this->newLeaseUrl($property));
+        $this->client->submitForm('Créer le bail', $this->validValues());
+
+        $lease = $this->leaseOf($property);
+        self::assertSame('2026-10-01', $lease->getRentTrackedFrom()->format('Y-m-d'));
+        self::assertSame(['2026-10'], self::getContainer()->get(RentDueRepository::class)->findPeriodsOf($lease));
+    }
+
+    public function testALeaseStartingThisMonthGetsItsFirstRentProrated(): void
+    {
+        $property = $this->myProperty();
+
+        $this->client->request('GET', $this->newLeaseUrl($property));
+        $this->client->submitForm('Créer le bail', [
+            ...$this->validValues(),
+            'lease_form[startDate]' => '2026-10-15',
+            'lease_form[irlReferenceYear]' => '2026',
+        ]);
+        $this->client->followRedirect();
+
+        // Du 15 au 31 octobre : 17 jours sur 31, soit 780 € × 17 / 31 = 427,74 €
+        self::assertSelectorTextContains('.table', 'Octobre 2026');
+        self::assertSelectorTextContains('.table', '427,74');
+        self::assertSelectorTextContains('.table', 'prorata');
     }
 
     public function testColocationWithTwoTenants(): void

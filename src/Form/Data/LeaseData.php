@@ -113,7 +113,11 @@ final class LeaseData
         }
     }
 
-    public function toLease(Property $property): Lease
+    /**
+     * Les loyers sont suivis dès le début du bail, ou à partir du mois en cours pour un bail déjà commencé :
+     * le propriétaire n'a pas à marquer comme payés des mois antérieurs à son arrivée dans l'application.
+     */
+    public function toLease(Property $property, \DateTimeImmutable $today): Lease
     {
         if (null === $this->startDate || null === $this->paymentDay || null === $this->rent || null === $this->charges
             || null === $this->deposit || null === $this->irlReferenceQuarter || null === $this->irlReferenceYear) {
@@ -129,6 +133,7 @@ final class LeaseData
             $this->paymentDay,
             $this->irlReferenceQuarter,
             $this->irlReferenceYear,
+            max(Lease::firstDayOfMonth($this->startDate), Lease::firstDayOfMonth($today)),
         );
 
         foreach ($this->tenants as $tenant) {

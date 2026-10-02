@@ -37,6 +37,7 @@ final class LeaseFactory extends PersistentObjectFactory
             'paymentDay' => self::faker()->randomElement([1, 5, 10]),
             'irlReferenceQuarter' => self::faker()->numberBetween(1, 4),
             'irlReferenceYear' => (int) $startDate->format('Y'),
+            'rentTrackedFrom' => $startDate,
         ];
     }
 

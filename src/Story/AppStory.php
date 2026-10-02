@@ -9,6 +9,8 @@ use App\Enum\HousingType;
 use App\Factory\LeaseFactory;
 use App\Factory\PropertyFactory;
 use App\Factory\UserFactory;
+use App\Lease\RentDueGenerator;
+use Psr\Clock\ClockInterface;
 use Zenstruck\Foundry\Attribute\AsFixture;
 use Zenstruck\Foundry\Story;
 
@@ -20,6 +22,12 @@ use Zenstruck\Foundry\Story;
 final class AppStory extends Story
 {
     public const string DEMO_PASSWORD = 'demo1234';
+
+    public function __construct(
+        private readonly RentDueGenerator $rentDueGenerator,
+        private readonly ClockInterface $clock,
+    ) {
+    }
 
     public function build(): void
     {
@@ -75,7 +83,7 @@ final class AppStory extends Story
         ]);
 
         // Le locataire de démo loue le T2 (son espace locataire sera relié à ce bail)
-        LeaseFactory::new()->create([
+        $croixRousseLease = LeaseFactory::new()->create([
             'property' => $croixRousse,
             'startDate' => new \DateTimeImmutable('2025-09-01'),
             'rent' => 72000,
@@ -84,11 +92,12 @@ final class AppStory extends Story
             'paymentDay' => 5,
             'irlReferenceQuarter' => 2,
             'irlReferenceYear' => 2025,
+            'rentTrackedFrom' => new \DateTimeImmutable('2026-08-01'),
             'tenants' => [['Karim', 'Benali', 'locataire@demo.test']],
         ]);
 
         // Une colocation
-        LeaseFactory::new()->create([
+        $villeurbanneLease = LeaseFactory::new()->create([
             'property' => $villeurbanne,
             'startDate' => new \DateTimeImmutable('2024-07-01'),
             'rent' => 135000,
@@ -97,10 +106,16 @@ final class AppStory extends Story
             'paymentDay' => 1,
             'irlReferenceQuarter' => 1,
             'irlReferenceYear' => 2024,
+            'rentTrackedFrom' => new \DateTimeImmutable('2026-07-01'),
             'tenants' => [
                 ['Léa', 'Moreau', 'lea.moreau@demo.test'],
                 ['Hugo', 'Lambert', 'hugo.lambert@demo.test'],
             ],
         ]);
+
+        // Échéances des derniers mois, comme si la tâche quotidienne avait tourné
+        foreach ([$croixRousseLease, $villeurbanneLease] as $lease) {
+            $this->rentDueGenerator->generateFor($lease, $this->clock->now());
+        }
     }
 }
