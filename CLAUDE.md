@@ -22,6 +22,7 @@ Les tests utilisent les factories Foundry (`src/Factory/`). La base de test est 
 - Dates affichées avec les filtres Twig `long_date` (« 1er juillet 2024 ») et `month_year` (« octobre 2026 »).
 - Toute règle qui dépend de la date du jour l'obtient via `ClockInterface` (et non `new \DateTimeImmutable()`), pour que les tests puissent la figer avec `ClockSensitiveTrait::mockTime()`.
 - Dates en `DateTimeImmutable`.
+- L'état d'une échéance est géré par le workflow `rent_due` : un paiement s'enregistre toujours via `PaymentRecorder` (verrou, montant encaissé, transition), jamais en modifiant l'entité directement.
 - Règles métier dans des services dédiés, testés unitairement, sans dépendance au contrôleur.
 - Droits d'accès via des Voters, avec un test fonctionnel qui vérifie qu'un utilisateur n'accède pas aux données d'un autre.
 - Les formulaires travaillent sur un objet intermédiaire (`src/Form/Data/`), jamais directement sur l'entité.

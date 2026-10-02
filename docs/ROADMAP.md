@@ -46,7 +46,7 @@ IrlIndex (trimestre, valeur, date de publication)
 - [x] Baux et locataires (loyer, charges, dépôt de garantie, trimestre IRL de référence, colocation)
 - [ ] Fin de bail et changement de locataire (un logement F ou G ne peut pas être reloué plus cher)
 - [x] Génération mensuelle des échéances, sans doublon même si la tâche tourne deux fois
-- [ ] Saisie des paiements, quittance ou reçu en PDF
+- [x] Saisie des paiements, quittance ou reçu en PDF
 - [ ] Espace locataire : échéances, quittances, documents, dépôt de l'attestation d'assurance
 - [ ] Révision annuelle selon l'IRL, bloquée pour les classes F et G
 - [ ] Démo en ligne avec comptes de test

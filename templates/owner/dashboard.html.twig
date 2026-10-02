@@ -22,6 +22,10 @@
                 <p class="stat-card__value">{{ due_this_month|money }}</p>
                 <p class="stat-card__label">appelés en {{ current_month|month_year }}</p>
             </section>
+            <section class="stat-card">
+                <p class="stat-card__value">{{ received_this_month|money }}</p>
+                <p class="stat-card__label">encaissés en {{ current_month|month_year }}</p>
+            </section>
             <section class="stat-card{% if overdue_count > 0 %} stat-card--alert{% endif %}">
                 <p class="stat-card__value">{{ overdue_count }}</p>
                 <p class="stat-card__label">{{ overdue_count > 1 ? 'échéances en retard' : 'échéance en retard' }}</p>

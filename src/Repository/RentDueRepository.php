@@ -76,6 +76,9 @@ final class RentDueRepository extends ServiceEntityRepository
             ->getSingleScalarResult();
     }
 
+    /**
+     * Échéances dont la date est passée sans que le loyer soit payé en entier (paiements partiels compris).
+     */
     public function countOverdueForOwner(User $owner, \DateTimeImmutable $today): int
     {
         return (int) $this->createQueryBuilder('d')
@@ -84,8 +87,10 @@ final class RentDueRepository extends ServiceEntityRepository
             ->join('l.property', 'p')
             ->andWhere('p.owner = :owner')
             ->andWhere('d.dueDate < :today')
+            ->andWhere('d.status != :paid')
             ->setParameter('owner', $owner)
             ->setParameter('today', $today->setTime(0, 0), Types::DATE_IMMUTABLE)
+            ->setParameter('paid', RentDue::STATUS_PAID)
             ->getQuery()
             ->getSingleScalarResult();
     }

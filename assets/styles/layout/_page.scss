@@ -58,6 +58,12 @@
         padding: 0;
         border: 0;
     }
+
+    // Colonnes plus étroites, pour un résumé en tête de formulaire
+    &--compact {
+        grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
+        margin-bottom: 0;
+    }
 }
 
 .stat-grid {

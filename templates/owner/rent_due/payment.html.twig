@@ -1,0 +1,38 @@
+{% extends 'layout/app.html.twig' %}
+
+{% set property = due.lease.property %}
+
+{% block title %}Paiement · {{ due.period|month_year }} · {{ property.name }} · Gestion locative{% endblock %}
+
+{% block content %}
+    <a href="{{ path('owner_property_show', {id: property.id}) }}" class="back-link">← {{ property.name }}</a>
+    <h1>Enregistrer un paiement</h1>
+    <p class="page-intro">Loyer de {{ due.period|month_year }} · {{ due.lease.tenants|map(tenant => tenant.fullName)|join(', ', ' et ') }}</p>
+
+    {{ form_start(form, {attr: {class: 'form form--card', novalidate: 'novalidate'}}) }}
+        <dl class="details details--flat details--compact">
+            <div>
+                <dt>Montant dû</dt>
+                <dd>{{ due.total|money }}</dd>
+            </div>
+            <div>
+                <dt>Déjà reçu</dt>
+                <dd>{{ due.paidAmount|money }}</dd>
+            </div>
+            <div>
+                <dt>Reste à payer</dt>
+                <dd><strong>{{ due.remainingAmount|money }}</strong></dd>
+            </div>
+        </dl>
+
+        {{ form_row(form.amount) }}
+        <div class="form__columns">
+            {{ form_row(form.paidOn) }}
+            {{ form_row(form.method) }}
+        </div>
+
+        <div class="form__actions">
+            <button type="submit" class="button button--primary">Enregistrer le paiement</button>
+        </div>
+    {{ form_end(form) }}
+{% endblock %}

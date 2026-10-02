@@ -4,12 +4,16 @@ declare(strict_types=1);
 
 namespace App\Story;
 
+use App\Entity\Lease;
 use App\Enum\EnergyClass;
 use App\Enum\HousingType;
+use App\Enum\PaymentMethod;
 use App\Factory\LeaseFactory;
 use App\Factory\PropertyFactory;
 use App\Factory\UserFactory;
 use App\Lease\RentDueGenerator;
+use App\Payment\PaymentRecorder;
+use App\Repository\RentDueRepository;
 use Psr\Clock\ClockInterface;
 use Zenstruck\Foundry\Attribute\AsFixture;
 use Zenstruck\Foundry\Story;
@@ -25,6 +29,8 @@ final class AppStory extends Story
 
     public function __construct(
         private readonly RentDueGenerator $rentDueGenerator,
+        private readonly RentDueRepository $dues,
+        private readonly PaymentRecorder $paymentRecorder,
         private readonly ClockInterface $clock,
     ) {
     }
@@ -116,6 +122,27 @@ final class AppStory extends Story
         // Échéances des derniers mois, comme si la tâche quotidienne avait tourné
         foreach ([$croixRousseLease, $villeurbanneLease] as $lease) {
             $this->rentDueGenerator->generateFor($lease, $this->clock->now());
+        }
+
+        // T2 : août payé (quittance), septembre payé en partie (reçu, en retard), octobre à payer
+        $this->pay($croixRousseLease, '2026-08-01', 78000, '2026-08-04', PaymentMethod::Transfer);
+        $this->pay($croixRousseLease, '2026-09-01', 50000, '2026-09-07', PaymentMethod::Transfer);
+
+        // Colocation : chacun paie sa moitié ; en octobre, un seul des deux a payé
+        foreach (['2026-07-01', '2026-08-01', '2026-09-01'] as $period) {
+            $this->pay($villeurbanneLease, $period, 72000, $period, PaymentMethod::Transfer);
+            $this->pay($villeurbanneLease, $period, 72000, $period, PaymentMethod::DirectDebit);
+        }
+        $this->pay($villeurbanneLease, '2026-10-01', 72000, '2026-10-01', PaymentMethod::Transfer);
+    }
+
+    private function pay(Lease $lease, string $period, int $amount, string $paidOn, PaymentMethod $method): void
+    {
+        $due = $this->dues->findOneBy(['lease' => $lease, 'period' => new \DateTimeImmutable($period)]);
+
+        // Données chargées avant cette date : l'échéance n'existe pas encore
+        if (null !== $due) {
+            $this->paymentRecorder->record($due, $amount, new \DateTimeImmutable($paidOn), $method);
         }
     }
 }

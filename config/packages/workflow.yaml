@@ -1,0 +1,28 @@
+# Cycle de vie d'une échéance de loyer. Schéma : bin/console workflow:dump rent_due --dump-format=mermaid
+framework:
+    workflows:
+        rent_due:
+            type: state_machine
+            # Chaque changement d'état est journalisé (canal « workflow »)
+            audit_trail:
+                enabled: true
+            marking_store:
+                type: method
+                property: status
+            supports:
+                - App\Entity\RentDue
+            initial_marking: unpaid
+            places:
+                - unpaid
+                - partially_paid
+                - paid
+            transitions:
+                # Les gardes portent sur le montant encaissé : l'état suit toujours les paiements
+                pay_partially:
+                    from: [unpaid, partially_paid]
+                    to: partially_paid
+                    guard: 'subject.getPaidAmount() > 0 and subject.getRemainingAmount() > 0'
+                pay_in_full:
+                    from: [unpaid, partially_paid]
+                    to: paid
+                    guard: 'subject.getRemainingAmount() == 0'
