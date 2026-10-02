@@ -12,10 +12,20 @@
             <a href="{{ path('owner_property_new') }}" class="button button--primary">Ajouter un bien</a>
         </section>
     {% else %}
-        <section class="stat-card">
-            <p class="stat-card__value">{{ property_count }}</p>
-            <p class="stat-card__label">{{ property_count > 1 ? 'biens en gestion' : 'bien en gestion' }}</p>
-            <a href="{{ path('owner_property_index') }}">Voir mes biens</a>
-        </section>
+        <div class="stat-grid">
+            <section class="stat-card">
+                <p class="stat-card__value">{{ property_count }}</p>
+                <p class="stat-card__label">{{ property_count > 1 ? 'biens en gestion' : 'bien en gestion' }}</p>
+                <a href="{{ path('owner_property_index') }}">Voir mes biens</a>
+            </section>
+            <section class="stat-card">
+                <p class="stat-card__value">{{ due_this_month|money }}</p>
+                <p class="stat-card__label">appelés en {{ current_month|month_year }}</p>
+            </section>
+            <section class="stat-card{% if overdue_count > 0 %} stat-card--alert{% endif %}">
+                <p class="stat-card__value">{{ overdue_count }}</p>
+                <p class="stat-card__label">{{ overdue_count > 1 ? 'échéances en retard' : 'échéance en retard' }}</p>
+            </section>
+        </div>
     {% endif %}
 {% endblock %}

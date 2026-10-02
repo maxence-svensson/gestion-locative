@@ -67,6 +67,13 @@ final class Lease
     private int $irlReferenceYear;
 
     /**
+     * Premier mois dont l'application suit le loyer (toujours le 1er du mois).
+     * Pour un bail déjà en cours quand il est saisi, on ne crée pas des années d'échéances passées.
+     */
+    #[ORM\Column(type: Types::DATE_IMMUTABLE)]
+    private \DateTimeImmutable $rentTrackedFrom;
+
+    /**
      * @var Collection<int, Tenant>
      */
     #[ORM\OneToMany(targetEntity: Tenant::class, mappedBy: 'lease', cascade: ['persist'], orphanRemoval: true)]
@@ -85,7 +92,10 @@ final class Lease
         int $paymentDay,
         int $irlReferenceQuarter,
         int $irlReferenceYear,
+        \DateTimeImmutable $rentTrackedFrom,
     ) {
+        $rentTrackedFrom = self::firstDayOfMonth($rentTrackedFrom);
+
         if ($rent <= 0) {
             throw new \InvalidArgumentException('Le loyer doit être supérieur à 0.');
         }
@@ -101,6 +111,9 @@ final class Lease
         if ($irlReferenceQuarter < 1 || $irlReferenceQuarter > 4) {
             throw new \InvalidArgumentException('Le trimestre IRL de référence doit être compris entre 1 et 4.');
         }
+        if ($rentTrackedFrom < self::firstDayOfMonth($startDate)) {
+            throw new \InvalidArgumentException('Le suivi des loyers ne peut pas commencer avant le début du bail.');
+        }
 
         $this->property = $property;
         $this->startDate = $startDate;
@@ -111,6 +124,7 @@ final class Lease
         $this->furnished = $property->isFurnished();
         $this->irlReferenceQuarter = $irlReferenceQuarter;
         $this->irlReferenceYear = $irlReferenceYear;
+        $this->rentTrackedFrom = $rentTrackedFrom;
         $this->tenants = new ArrayCollection();
         $this->createdAt = new \DateTimeImmutable();
     }
@@ -182,6 +196,16 @@ final class Lease
     public function getIrlReferenceYear(): int
     {
         return $this->irlReferenceYear;
+    }
+
+    public function getRentTrackedFrom(): \DateTimeImmutable
+    {
+        return $this->rentTrackedFrom;
+    }
+
+    public static function firstDayOfMonth(\DateTimeInterface $date): \DateTimeImmutable
+    {
+        return \DateTimeImmutable::createFromInterface($date)->modify('first day of this month')->setTime(0, 0);
     }
 
     /**

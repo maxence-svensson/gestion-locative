@@ -25,4 +25,9 @@ final class DateExtensionTest extends TestCase
     {
         self::assertSame($expected, (new DateExtension())->formatLongDate(new \DateTimeImmutable($date)));
     }
+
+    public function testMonthAndYearInFrench(): void
+    {
+        self::assertSame('octobre 2026', (new DateExtension())->formatMonthYear(new \DateTimeImmutable('2026-10-01')));
+    }
 }

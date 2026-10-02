@@ -37,4 +37,42 @@
             <li><strong>{{ tenant.fullName }}</strong> <span>{{ tenant.email }}</span></li>
         {% endfor %}
     </ul>
+
+    <h3 class="card__subtitle">Échéances</h3>
+    <p class="card__note">Loyers suivis depuis {{ lease.rentTrackedFrom|month_year }}.</p>
+    {% if dues is empty %}
+        <p class="card__note">La première échéance sera créée au début du suivi.</p>
+    {% else %}
+        <div class="table-wrapper">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">Mois</th>
+                        <th scope="col">À payer le</th>
+                        <th scope="col" class="table__amount">Montant</th>
+                        <th scope="col">Statut</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for due in dues %}
+                        <tr>
+                            <td>{{ due.period|month_year|capitalize }}</td>
+                            <td>{{ due.dueDate|long_date }}</td>
+                            <td class="table__amount">
+                                {{ due.total|money }}
+                                {% if due.prorated %}<span class="table__note">prorata</span>{% endif %}
+                            </td>
+                            <td>
+                                {% if due.overdue(today) %}
+                                    <span class="pill pill--danger">En retard</span>
+                                {% else %}
+                                    <span class="pill">À payer</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
 </section>

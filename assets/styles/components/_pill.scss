@@ -1,0 +1,15 @@
+// Petit statut arrondi dans un tableau
+.pill {
+    display: inline-block;
+    padding: 0.125rem var(--space-2);
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--color-text-muted);
+    background: var(--color-bg);
+
+    &--danger {
+        color: var(--color-danger);
+        background: var(--color-danger-soft);
+    }
+}

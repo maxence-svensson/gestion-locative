@@ -9,6 +9,20 @@ services:
       database:
         condition: service_healthy
 
+  # Exécute les tâches planifiées (Scheduler) et les messages asynchrones (e-mails…)
+  worker:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    command: ['php', 'bin/console', 'messenger:consume', 'scheduler_default', 'async', '--time-limit=3600', '-vv']
+    # Le worker s'arrête après une heure (libère la mémoire) et Docker le relance
+    restart: unless-stopped
+    volumes:
+      - ./:/app
+    depends_on:
+      database:
+        condition: service_healthy
+
   nginx:
     image: nginx:stable-alpine
     ports:

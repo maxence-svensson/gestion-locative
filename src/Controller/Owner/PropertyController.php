@@ -10,8 +10,10 @@ use App\Form\Data\PropertyData;
 use App\Form\PropertyFormType;
 use App\Repository\LeaseRepository;
 use App\Repository\PropertyRepository;
+use App\Repository\RentDueRepository;
 use App\Security\Voter\PropertyVoter;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Clock\ClockInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -62,11 +64,15 @@ final class PropertyController extends AbstractController
 
     #[Route('/{id}', name: 'show', requirements: ['id' => Requirement::DIGITS], methods: ['GET'])]
     #[IsGranted(PropertyVoter::VIEW, 'property')]
-    public function show(Property $property): Response
+    public function show(Property $property, RentDueRepository $dues, ClockInterface $clock): Response
     {
+        $lease = $this->leases->findOneByProperty($property);
+
         return $this->render('owner/property/show.html.twig', [
             'property' => $property,
-            'lease' => $this->leases->findOneByProperty($property),
+            'lease' => $lease,
+            'dues' => null !== $lease ? $dues->findLatestOf($lease) : [],
+            'today' => $clock->now(),
         ]);
     }
 

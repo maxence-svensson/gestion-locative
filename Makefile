@@ -3,16 +3,18 @@ PHP     = $(DC) exec php
 CONSOLE = $(PHP) bin/console
 
 .DEFAULT_GOAL := help
-.PHONY: help start stop sh sass-watch db-reset fixtures test phpstan cs cs-fix qa
+.PHONY: help start stop sh logs sass-watch db-reset fixtures test phpstan cs cs-fix qa
 
 help: ## Affiche cette aide
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-12s\033[0m %s\n", $$1, $$2}'
 
 start: ## Construit et démarre l'application
-	$(DC) up -d --build --wait
+	$(DC) up -d --build --wait php nginx database mailpit
 	$(PHP) composer install --no-interaction
 	$(CONSOLE) doctrine:migrations:migrate --no-interaction --allow-no-migration
 	$(CONSOLE) sass:build
+	@# Le worker démarre en dernier : il a besoin des dépendances et de la base à jour
+	$(DC) up -d --build worker
 	@echo "Application : http://localhost:8080  |  E-mails (Mailpit) : http://localhost:8025"
 
 stop: ## Arrête les conteneurs
@@ -20,6 +22,9 @@ stop: ## Arrête les conteneurs
 
 sh: ## Ouvre un shell dans le conteneur PHP
 	$(PHP) bash
+
+logs: ## Suit les logs du worker (tâches planifiées)
+	$(DC) logs -f worker
 
 sass-watch: ## Recompile le SCSS à chaque modification
 	$(CONSOLE) sass:build --watch

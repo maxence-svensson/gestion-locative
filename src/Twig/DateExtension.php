@@ -24,4 +24,15 @@ final class DateExtension
 
         return $formatted;
     }
+
+    /**
+     * Mois et année en français : {{ due.period|month_year }} → « octobre 2026 ».
+     */
+    #[AsTwigFilter('month_year')]
+    public function formatMonthYear(\DateTimeInterface $date): string
+    {
+        $formatter = new \IntlDateFormatter('fr_FR', \IntlDateFormatter::NONE, \IntlDateFormatter::NONE, $date->getTimezone(), null, 'MMMM y');
+
+        return (string) $formatter->format($date);
+    }
 }

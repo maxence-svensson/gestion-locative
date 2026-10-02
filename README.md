@@ -40,6 +40,7 @@ make start
 | `make qa` | Style du code, analyse statique et tests, comme la CI |
 | `make test` | Tests uniquement |
 | `make fixtures` | Recharge les données de démonstration |
+| `make logs` | Suit les logs du worker (tâches planifiées) |
 | `make sass-watch` | Recompile le SCSS à chaque modification |
 | `make sh` | Shell dans le conteneur PHP |
 
@@ -77,9 +78,19 @@ make start
 - **Aide à la saisie** : le total mensuel et le dépôt maximum se calculent en direct pendant la saisie (contrôleur Stimulus `lease-amounts`). La vraie vérification reste faite côté serveur.
 - **Un bien loué ne peut pas être supprimé**, et n'a qu'un bail en cours.
 
+### Échéances mensuelles
+
+- **Génération idempotente** (`RentDueGenerator`) : relancée autant de fois qu'on veut, elle ne crée que les mois manquants. Elle tourne donc **chaque jour** plutôt qu'une fois par mois : si le serveur est arrêté le 1er, le mois est rattrapé le lendemain.
+- **Trois protections contre les doublons** : la génération ignore les mois déjà présents, un verrou PostgreSQL (« advisory lock ») empêche deux générations simultanées, et une contrainte d'unicité en base (bail + mois) reste le dernier filet.
+- **Tâche planifiée** avec Symfony Scheduler, exécutée par un worker Messenger (service `worker` de `compose.yaml`). La même génération est disponible en commande : `bin/console app:rent-dues:generate`.
+- **Premier loyer au prorata** quand le bail commence en cours de mois, calculé en nombres entiers et arrondi au centime (`RentSchedule`, testé unitairement sur les mois de 28, 30 et 31 jours).
+- **Suivi à partir du mois de saisie** pour un bail déjà en cours : le propriétaire n'a pas à marquer comme payés des mois antérieurs à son arrivée dans l'application.
+- **Le temps est injecté** (`ClockInterface`) : les tests figent la date du jour, et ne dépendent donc pas du jour où ils tournent.
+
 ## Problèmes rencontrés
 
 - **« 1 234,56 » refusé dans un champ montant.** Le champ `MoneyType` de Symfony rejette par défaut un montant écrit avec un espace entre les milliers, la façon habituelle d'écrire en français. Il faut activer l'option `grouping`. J'en ai fait un champ réutilisable (`EuroAmountType`), avec un test pour chaque façon d'écrire un montant (espace, espace insécable, virgule, point).
 - **Un test de performance qui se trompait.** Le test qui compte les requêtes SQL de la liste des biens trouvait 10 requêtes au lieu de 3 : il comptait aussi les insertions faites par le test juste avant, le noyau n'étant redémarré qu'à la requête suivante. Le test fait maintenant une requête « à blanc » avant de mesurer.
+- **Ajouter une colonne obligatoire à une table déjà remplie.** La migration générée (`ADD ... NOT NULL`) aurait échoué sur une base contenant des baux. Elle ajoute maintenant la colonne vide, la remplit, puis la rend obligatoire.
 - **Des tests qui passaient pour une mauvaise raison.** Pour chaque garde-fou (Voter, nombre de requêtes, saisie des montants), j'ai introduit volontairement le défaut qu'il surveille, pour vérifier qu'il échoue bien.
 - **Le test du blocage après 5 échecs de connexion échouait** : en test, le cache en mémoire est vidé entre deux requêtes, donc le compteur repartait de zéro. Solution : cache sur disque, remis à zéro au début de chaque test.
