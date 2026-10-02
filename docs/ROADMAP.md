@@ -47,7 +47,8 @@ IrlIndex (trimestre, valeur, date de publication)
 - [ ] Fin de bail et changement de locataire (un logement F ou G ne peut pas être reloué plus cher)
 - [x] Génération mensuelle des échéances, sans doublon même si la tâche tourne deux fois
 - [x] Saisie des paiements, quittance ou reçu en PDF
-- [ ] Espace locataire : échéances, quittances, documents, dépôt de l'attestation d'assurance
+- [x] Espace locataire : invitation par e-mail, échéances et quittances
+- [ ] Espace locataire : documents et dépôt de l'attestation d'assurance
 - [ ] Révision annuelle selon l'IRL, bloquée pour les classes F et G
 - [ ] Démo en ligne avec comptes de test
 

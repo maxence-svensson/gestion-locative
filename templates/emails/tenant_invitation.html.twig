@@ -1,0 +1,25 @@
+{# Styles en ligne : la plupart des messageries ignorent les feuilles de style #}
+<div style="max-width: 560px; margin: 0 auto; padding: 24px; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; font-size: 16px; line-height: 1.5; color: #1c1f23;">
+    <p style="margin: 0 0 24px; font-weight: 700; color: #1f5f5b;">Gestion locative</p>
+
+    <p>Bonjour {{ tenant.firstName }},</p>
+
+    <p>
+        {{ owner.fullName }} vous invite à rejoindre votre espace locataire pour le logement situé
+        {{ property.fullAddress }}.
+    </p>
+
+    <p>Vous y retrouverez vos échéances de loyer et pourrez télécharger vos quittances à tout moment.</p>
+
+    <p style="margin: 32px 0;">
+        <a href="{{ invitation_url }}"
+           style="display: inline-block; padding: 12px 20px; border-radius: 8px; background: #1f5f5b; color: #ffffff; font-weight: 600; text-decoration: none;">
+            Activer mon espace locataire
+        </a>
+    </p>
+
+    <p style="font-size: 14px; color: #5b6370;">
+        Ce lien est personnel et valable jusqu'au {{ expires_at|long_date }}.
+        Si vous ne vous attendiez pas à cette invitation, ignorez simplement cet e-mail.
+    </p>
+</div>

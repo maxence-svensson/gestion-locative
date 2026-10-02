@@ -12,7 +12,7 @@ Tout tourne dans Docker, via `make` :
 - `make fixtures` : données de démo (Foundry, `src/Story/AppStory.php`)
 - `make logs` : logs du worker, qui exécute les tâches planifiées (`src/Schedule.php`) et les messages asynchrones
 
-Les tests utilisent les factories Foundry (`src/Factory/`). La base de test est reconstruite automatiquement en rejouant les migrations.
+Les tests utilisent les factories Foundry (`src/Factory/`). La base de test est reconstruite automatiquement en rejouant les migrations. En test, les e-mails restent en mémoire (transport Messenger `in-memory://`) : on les vérifie avec `assertQueuedEmailCount()` et `getMailerMessage()`.
 
 ## Conventions
 

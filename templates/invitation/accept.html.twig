@@ -1,0 +1,34 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Votre espace locataire · Gestion locative{% endblock %}
+
+{% block body %}
+    <main class="auth">
+        <div class="auth__card">
+            <a href="{{ path('app_home') }}" class="auth__brand">Gestion locative</a>
+            <h1 class="auth__title">Bonjour {{ tenant.firstName }}</h1>
+            <p class="auth__intro">
+                {{ tenant.lease.property.owner.fullName }} vous invite dans votre espace locataire, pour le logement
+                situé {{ tenant.lease.property.fullAddress }}.
+            </p>
+
+            {% if has_account %}
+                <p class="auth__intro">
+                    Un compte existe déjà avec l'adresse <strong>{{ tenant.email }}</strong> :
+                    cette location y sera ajoutée.
+                </p>
+                {{ form_start(form, {attr: {class: 'form'}}) }}
+                    <button type="submit" class="button button--primary button--block">Ajouter à mon compte</button>
+                {{ form_end(form) }}
+            {% else %}
+                <p class="auth__intro">
+                    Choisissez votre mot de passe. Vous vous connecterez ensuite avec l'adresse <strong>{{ tenant.email }}</strong>.
+                </p>
+                {{ form_start(form, {attr: {class: 'form', novalidate: 'novalidate'}}) }}
+                    {{ form_row(form.plainPassword) }}
+                    <button type="submit" class="button button--primary button--block">Activer mon espace</button>
+                {{ form_end(form) }}
+            {% endif %}
+        </div>
+    </main>
+{% endblock %}

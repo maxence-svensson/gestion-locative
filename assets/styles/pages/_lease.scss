@@ -33,9 +33,24 @@
     padding: 0;
     list-style: none;
 
-    span {
+    li {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--space-2) var(--space-4);
+    }
+
+    &__email {
         margin-left: var(--space-2);
         color: var(--color-text-muted);
         font-size: 0.875rem;
+    }
+
+    // Accès à l'espace locataire : statut de l'invitation et bouton
+    &__access {
+        display: flex;
+        align-items: center;
+        gap: var(--space-3);
     }
 }

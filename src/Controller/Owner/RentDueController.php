@@ -15,7 +15,6 @@ use App\Security\Voter\RentDueVoter;
 use Psr\Clock\ClockInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
-use Symfony\Component\HttpFoundation\HeaderUtils;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -73,12 +72,6 @@ final class RentDueController extends AbstractController
             throw $this->createNotFoundException('Aucun paiement n\'a encore été reçu pour cette échéance.');
         }
 
-        $receipt = $receipts->generate($due);
-
-        return new Response($receipt->pdf, Response::HTTP_OK, [
-            'Content-Type' => 'application/pdf',
-            // « inline » : le navigateur affiche le PDF, avec un nom de fichier propre s'il est enregistré
-            'Content-Disposition' => HeaderUtils::makeDisposition(HeaderUtils::DISPOSITION_INLINE, $receipt->filename),
-        ]);
+        return $receipts->generate($due)->toResponse();
     }
 }

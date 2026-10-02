@@ -11,8 +11,8 @@ use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
 /**
- * Seul le propriétaire du bien loué peut consulter une échéance, y enregistrer un paiement
- * et télécharger sa quittance ou son reçu.
+ * Le propriétaire du bien loué peut consulter une échéance, y enregistrer un paiement et télécharger
+ * sa quittance ou son reçu. Les locataires du bail peuvent seulement la consulter et télécharger ses justificatifs.
  *
  * @extends Voter<string, RentDue>
  */
@@ -35,7 +35,11 @@ final class RentDueVoter extends Voter
             return false;
         }
 
-        // Plus tard, le locataire pourra consulter (VIEW) ses échéances et télécharger ses quittances
-        return $subject->getLease()->getProperty()->isOwnedBy($user);
+        $lease = $subject->getLease();
+
+        return match ($attribute) {
+            self::VIEW => $lease->getProperty()->isOwnedBy($user) || $lease->hasTenantAccount($user),
+            default => $lease->getProperty()->isOwnedBy($user),
+        };
     }
 }

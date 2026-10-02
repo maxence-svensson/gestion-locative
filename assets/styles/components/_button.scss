@@ -21,6 +21,11 @@
         }
     }
 
+    &--small {
+        padding: var(--space-1) var(--space-3);
+        font-size: 0.8125rem;
+    }
+
     &--ghost {
         color: var(--color-text);
         background: transparent;

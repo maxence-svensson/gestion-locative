@@ -31,6 +31,8 @@ make start
 | Propriétaire | `proprietaire@demo.test` | `demo1234` |
 | Locataire | `locataire@demo.test` | `demo1234` |
 
+Pour essayer l'invitation d'un locataire : sur la fiche de la maison de Villeurbanne, invitez Hugo Lambert, puis ouvrez l'e-mail reçu dans Mailpit (http://localhost:8025) et suivez le lien.
+
 ### Commandes
 
 `make help` liste toutes les commandes. Les plus utiles :
@@ -103,11 +105,20 @@ graph LR
 - **Impossible d'encaisser plus que le montant dû**, même avec deux paiements simultanés (deux onglets, double clic) : l'échéance est verrouillée (`SELECT … FOR UPDATE`) et relue avant chaque paiement.
 - **Tableau de bord** : montant appelé et encaissé dans le mois, échéances en retard (une échéance payée en partie après sa date reste en retard).
 
+### Espace locataire
+
+- **Invitation par e-mail** : depuis la fiche du bien, le propriétaire invite chaque locataire. L'e-mail part en arrière-plan (Messenger), le lien est valable 7 jours, ne sert qu'une fois, et une nouvelle invitation remplace la précédente.
+- **Le lien n'est jamais enregistré en clair** : la base n'en garde que l'empreinte SHA-256. Une fuite de la base ne permettrait pas d'activer un compte.
+- **Ouvrir le lien ne suffit pas** : certaines messageries ouvrent les liens pour les analyser. Le compte n'est créé qu'à l'envoi du formulaire (mot de passe d'au moins 12 caractères, robustesse vérifiée).
+- **Un compte existant est réutilisé** : un propriétaire peut aussi être locataire ailleurs. La location est ajoutée à son compte, et il passe d'un espace à l'autre depuis le bandeau.
+- **Le locataire consulte ses échéances et télécharge ses quittances**, sans pouvoir enregistrer de paiement. Le Voter des échéances distingue les deux droits, et les colocataires voient tous le même bail.
+
 ## Problèmes rencontrés
 
 - **« 1 234,56 » refusé dans un champ montant.** Le champ `MoneyType` de Symfony rejette par défaut un montant écrit avec un espace entre les milliers, la façon habituelle d'écrire en français. Il faut activer l'option `grouping`. J'en ai fait un champ réutilisable (`EuroAmountType`), avec un test pour chaque façon d'écrire un montant (espace, espace insécable, virgule, point).
 - **Un test de performance qui se trompait.** Le test qui compte les requêtes SQL de la liste des biens trouvait 10 requêtes au lieu de 3 : il comptait aussi les insertions faites par le test juste avant, le noyau n'étant redémarré qu'à la requête suivante. Le test fait maintenant une requête « à blanc » avant de mesurer.
 - **Ajouter une colonne obligatoire à une table déjà remplie.** La migration générée (`ADD ... NOT NULL`) aurait échoué sur une base contenant des baux. Elle ajoute maintenant la colonne vide, la remplit, puis la rend obligatoire.
 - **`wrapInTransaction()` ferme l'EntityManager au premier refus.** Avec cette méthode de Doctrine, un simple refus métier (« le paiement dépasse le reste à payer ») fermait l'EntityManager, et la page ne pouvait plus réafficher le formulaire avec son message. La transaction est maintenant gérée à la main ; un test enregistre un paiement juste après un refus pour le vérifier.
+- **Un utilisateur déconnecté en acceptant une invitation.** Quand un propriétaire déjà connecté acceptait une invitation de locataire, il se retrouvait déconnecté : Symfony déconnecte par sécurité un utilisateur dont les rôles changent pendant sa session. Il fallait lire l'utilisateur connecté avant de lui ajouter le rôle locataire, puis rafraîchir sa session.
 - **Des tests qui passaient pour une mauvaise raison.** Pour chaque garde-fou (Voters, nombre de requêtes, saisie des montants, doublons d'échéances, verrou des paiements), j'ai introduit volontairement le défaut qu'il surveille, pour vérifier qu'il échoue bien.
 - **Le test du blocage après 5 échecs de connexion échouait** : en test, le cache en mémoire est vidé entre deux requêtes, donc le compteur repartait de zéro. Solution : cache sur disque, remis à zéro au début de chaque test.

@@ -1,0 +1,18 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Lien d'invitation non valable · Gestion locative{% endblock %}
+
+{% block body %}
+    <main class="auth">
+        <div class="auth__card">
+            <a href="{{ path('app_home') }}" class="auth__brand">Gestion locative</a>
+            <h1 class="auth__title">Ce lien n'est plus valable</h1>
+            {# Même message dans tous les cas : on ne révèle pas si le lien a existé #}
+            <p class="auth__intro">
+                Il a peut-être expiré (il est valable 7 jours), déjà été utilisé, ou été remplacé par une invitation plus récente.
+                Demandez à votre propriétaire de vous renvoyer une invitation.
+            </p>
+            <a href="{{ path('app_login') }}" class="button button--ghost button--block">Se connecter</a>
+        </div>
+    </main>
+{% endblock %}

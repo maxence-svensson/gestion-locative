@@ -1,0 +1,52 @@
+{#
+    Tableau des échéances, partagé entre l'espace propriétaire et l'espace locataire.
+    Paramètres : dues, today, receipt_route (route du justificatif PDF), can_record_payment (propriétaire uniquement).
+#}
+<div class="table-wrapper">
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Mois</th>
+                <th scope="col">À payer le</th>
+                <th scope="col" class="table__amount">Montant</th>
+                <th scope="col">Statut</th>
+                <th scope="col"><span class="visually-hidden">Actions</span></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for due in dues %}
+                <tr>
+                    <td>{{ due.period|month_year|capitalize }}</td>
+                    <td>{{ due.dueDate|long_date }}</td>
+                    <td class="table__amount">
+                        {{ due.total|money }}
+                        {% if due.prorated %}<span class="table__note">prorata</span>{% endif %}
+                    </td>
+                    <td>
+                        {% if due.paid %}
+                            <span class="pill pill--success">Payé</span>
+                        {% elseif due.overdue(today) %}
+                            <span class="pill pill--danger">En retard</span>
+                        {% elseif due.paidAmount > 0 %}
+                            <span class="pill pill--warning">Payé en partie</span>
+                        {% else %}
+                            <span class="pill">À payer</span>
+                        {% endif %}
+                        {% if due.paidAmount > 0 and not due.paid %}
+                            <span class="table__note">reste {{ due.remainingAmount|money }}</span>
+                        {% endif %}
+                    </td>
+                    <td class="table__actions">
+                        {% if can_record_payment and not due.paid %}
+                            <a href="{{ path('owner_rent_due_payment', {id: due.id}) }}">Enregistrer un paiement</a>
+                        {% endif %}
+                        {% if due.receiptType %}
+                            <a href="{{ path(receipt_route, {id: due.id}) }}" target="_blank" rel="noopener"
+                               data-turbo="false">{{ due.receiptType.shortLabel }} (PDF)</a>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>

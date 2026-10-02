@@ -8,6 +8,10 @@
             <a href="{{ path('app_home') }}" class="auth__brand">Gestion locative</a>
             <h1 class="auth__title">Connexion</h1>
 
+            {% for message in app.flashes('success') %}
+                <div class="alert alert--success" role="status">{{ message }}</div>
+            {% endfor %}
+
             {% if error %}
                 <div class="alert alert--error" role="alert">
                     {{ error.messageKey|trans(error.messageData, 'security') }}

@@ -50,4 +50,23 @@ final class LeaseRepository extends ServiceEntityRepository
             ->getQuery()
             ->getSingleColumnResult()));
     }
+
+    /**
+     * Les baux d'un locataire (plusieurs s'il loue plusieurs logements), avec le bien et le propriétaire.
+     *
+     * @return list<Lease>
+     */
+    public function findForTenantAccount(User $user): array
+    {
+        return $this->createQueryBuilder('l')
+            ->addSelect('p', 'o')
+            ->join('l.property', 'p')
+            ->join('p.owner', 'o')
+            ->join('l.tenants', 'me')
+            ->andWhere('me.user = :user')
+            ->setParameter('user', $user)
+            ->orderBy('l.startDate', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
 }

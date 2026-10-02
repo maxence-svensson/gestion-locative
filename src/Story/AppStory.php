@@ -14,6 +14,7 @@ use App\Factory\UserFactory;
 use App\Lease\RentDueGenerator;
 use App\Payment\PaymentRecorder;
 use App\Repository\RentDueRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Psr\Clock\ClockInterface;
 use Zenstruck\Foundry\Attribute\AsFixture;
 use Zenstruck\Foundry\Story;
@@ -31,6 +32,7 @@ final class AppStory extends Story
         private readonly RentDueGenerator $rentDueGenerator,
         private readonly RentDueRepository $dues,
         private readonly PaymentRecorder $paymentRecorder,
+        private readonly EntityManagerInterface $entityManager,
         private readonly ClockInterface $clock,
     ) {
     }
@@ -44,7 +46,7 @@ final class AppStory extends Story
             'password' => self::DEMO_PASSWORD,
         ]);
 
-        UserFactory::new()->asTenant()->create([
+        $tenantAccount = UserFactory::new()->asTenant()->create([
             'email' => 'locataire@demo.test',
             'firstName' => 'Karim',
             'lastName' => 'Benali',
@@ -134,6 +136,12 @@ final class AppStory extends Story
             $this->pay($villeurbanneLease, $period, 72000, $period, PaymentMethod::DirectDebit);
         }
         $this->pay($villeurbanneLease, '2026-10-01', 72000, '2026-10-01', PaymentMethod::Transfer);
+
+        // Accès à l'espace locataire : Karim l'a activé, Léa a reçu une invitation, Hugo pas encore
+        $croixRousseLease->getTenants()[0]->attachUser($tenantAccount);
+        $now = $this->clock->now();
+        $villeurbanneLease->getTenants()[0]->invite(hash('sha256', random_bytes(32)), $now, $now->modify('+7 days'));
+        $this->entityManager->flush();
     }
 
     private function pay(Lease $lease, string $period, int $amount, string $paidOn, PaymentMethod $method): void

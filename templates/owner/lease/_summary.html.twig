@@ -34,7 +34,28 @@
     <h3 class="card__subtitle">{{ lease.tenants|length > 1 ? 'Locataires (colocation)' : 'Locataire' }}</h3>
     <ul class="tenant-summary">
         {% for tenant in lease.tenants %}
-            <li><strong>{{ tenant.fullName }}</strong> <span>{{ tenant.email }}</span></li>
+            <li>
+                <div>
+                    <strong>{{ tenant.fullName }}</strong> <span class="tenant-summary__email">{{ tenant.email }}</span>
+                </div>
+                <div class="tenant-summary__access">
+                    {% if tenant.hasAccount() %}
+                        <span class="pill pill--success">Espace activé</span>
+                    {% else %}
+                        {% if tenant.isInvitationPending(today) %}
+                            <span class="pill">Invité le {{ tenant.invitedAt|long_date }}</span>
+                        {% elseif tenant.hasInvitationExpired(today) %}
+                            <span class="pill pill--warning">Invitation expirée</span>
+                        {% endif %}
+                        <form method="post" action="{{ path('owner_tenant_invite', {id: tenant.id}) }}">
+                            <input type="hidden" name="_token" value="{{ csrf_token('invite-tenant') }}">
+                            <button type="submit" class="button button--ghost button--small">
+                                {{ tenant.invitedAt ? 'Renvoyer l\'invitation' : 'Inviter dans son espace' }}
+                            </button>
+                        </form>
+                    {% endif %}
+                </div>
+            </li>
         {% endfor %}
     </ul>
 
@@ -43,53 +64,6 @@
     {% if dues is empty %}
         <p class="card__note">La première échéance sera créée au début du suivi.</p>
     {% else %}
-        <div class="table-wrapper">
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th scope="col">Mois</th>
-                        <th scope="col">À payer le</th>
-                        <th scope="col" class="table__amount">Montant</th>
-                        <th scope="col">Statut</th>
-                        <th scope="col"><span class="visually-hidden">Actions</span></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for due in dues %}
-                        <tr>
-                            <td>{{ due.period|month_year|capitalize }}</td>
-                            <td>{{ due.dueDate|long_date }}</td>
-                            <td class="table__amount">
-                                {{ due.total|money }}
-                                {% if due.prorated %}<span class="table__note">prorata</span>{% endif %}
-                            </td>
-                            <td>
-                                {% if due.paid %}
-                                    <span class="pill pill--success">Payé</span>
-                                {% elseif due.overdue(today) %}
-                                    <span class="pill pill--danger">En retard</span>
-                                {% elseif due.paidAmount > 0 %}
-                                    <span class="pill pill--warning">Payé en partie</span>
-                                {% else %}
-                                    <span class="pill">À payer</span>
-                                {% endif %}
-                                {% if due.paidAmount > 0 and not due.paid %}
-                                    <span class="table__note">reste {{ due.remainingAmount|money }}</span>
-                                {% endif %}
-                            </td>
-                            <td class="table__actions">
-                                {% if not due.paid %}
-                                    <a href="{{ path('owner_rent_due_payment', {id: due.id}) }}">Enregistrer un paiement</a>
-                                {% endif %}
-                                {% if due.receiptType %}
-                                    <a href="{{ path('owner_rent_due_receipt', {id: due.id}) }}" target="_blank" rel="noopener"
-                                       data-turbo="false">{{ due.receiptType.shortLabel }} (PDF)</a>
-                                {% endif %}
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+        {{ include('rent_due/_table.html.twig', {receipt_route: 'owner_rent_due_receipt', can_record_payment: true}) }}
     {% endif %}
 </section>

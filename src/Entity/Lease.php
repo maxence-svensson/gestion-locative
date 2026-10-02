@@ -209,6 +209,20 @@ final class Lease
     }
 
     /**
+     * Ce compte est-il celui de l'un des locataires du bail ?
+     */
+    public function hasTenantAccount(User $user): bool
+    {
+        foreach ($this->tenants as $tenant) {
+            if (null !== $user->getId() && $tenant->getUser()?->getId() === $user->getId()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * @return list<Tenant>
      */
     public function getTenants(): array

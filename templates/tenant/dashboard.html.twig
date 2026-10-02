@@ -5,8 +5,46 @@
 {% block content %}
     <h1>Bonjour {{ app.user.firstName }}</h1>
 
-    <section class="empty-state">
-        <h2>Aucune location pour l'instant</h2>
-        <p>Dès que votre propriétaire vous aura rattaché à votre logement, vous retrouverez ici vos échéances, vos quittances et vos documents.</p>
-    </section>
+    {% for rental in rentals %}
+        {% set lease = rental.lease %}
+        {% set property = lease.property %}
+        <section class="card">
+            <div class="card__header">
+                <h2>{{ property.fullAddress }}</h2>
+                <span class="badge">Depuis le {{ lease.startDate|long_date }}</span>
+            </div>
+
+            <dl class="details details--flat">
+                <div>
+                    <dt>Propriétaire</dt>
+                    <dd>{{ property.owner.fullName }}</dd>
+                </div>
+                <div>
+                    <dt>Loyer charges comprises</dt>
+                    <dd><strong>{{ lease.monthlyTotal|money }}</strong> par mois</dd>
+                </div>
+                <div>
+                    <dt>À payer le</dt>
+                    <dd>{{ lease.paymentDay == 1 ? '1er' : lease.paymentDay }} de chaque mois</dd>
+                </div>
+            </dl>
+
+            <h3 class="card__subtitle">Mes échéances</h3>
+            {% if rental.dues is empty %}
+                <p class="card__note">Votre première échéance apparaîtra ici au début du mois.</p>
+            {% else %}
+                <p class="card__note">Une quittance est disponible dès que le loyer d'un mois est payé en entier.</p>
+                {{ include('rent_due/_table.html.twig', {
+                    dues: rental.dues,
+                    receipt_route: 'tenant_rent_due_receipt',
+                    can_record_payment: false,
+                }) }}
+            {% endif %}
+        </section>
+    {% else %}
+        <section class="empty-state">
+            <h2>Aucune location pour l'instant</h2>
+            <p>Dès que votre propriétaire vous aura rattaché à votre logement, vous retrouverez ici vos échéances, vos quittances et vos documents.</p>
+        </section>
+    {% endfor %}
 {% endblock %}

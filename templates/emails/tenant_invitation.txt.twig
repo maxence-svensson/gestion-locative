@@ -1,0 +1,10 @@
+Bonjour {{ tenant.firstName }},
+
+{{ owner.fullName }} vous invite à rejoindre votre espace locataire pour le logement situé {{ property.fullAddress }}.
+
+Vous y retrouverez vos échéances de loyer et pourrez télécharger vos quittances à tout moment.
+
+Activer mon espace locataire : {{ invitation_url }}
+
+Ce lien est personnel et valable jusqu'au {{ expires_at|long_date }}.
+Si vous ne vous attendiez pas à cette invitation, ignorez simplement cet e-mail.
